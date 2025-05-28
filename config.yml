@@ -1,0 +1,23 @@
+# 服务器配置
+server:
+  addr: ":8080"
+
+# 日志配置
+logging:
+  level: "info"
+  output_to_console: true
+  output_to_file: true
+  output_file_path: "./logs/nebula-live.log"
+  use_color_level: true
+  max_size_mb: 10
+  max_backups: 5
+  max_age_days: 30
+  compress: true
+  caller_skip: 0
+  add_stacktrace: false
+
+# 数据库配置
+database:
+  type: "postgres"
+  connection: "host=localhost port=5432 user=postgres password=postgres dbname=nebula_live sslmode=disable"
+  migrate: true
