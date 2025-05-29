@@ -1,52 +1,21 @@
 # 项目进展记录
 
-## 2025年5月28日
+## 2025年5月29日
 
-- **任务：使用 Fiber 搭建基础 API 服务**
-  - 状态：已完成
-  - 结果：Fiber 依赖已添加到 `go.mod` 文件中，创建了 `main.go` 文件，其中包含一个简单的 GET 端点返回欢迎消息。
-  - 来源：最终结果来自 'Code' 模式子任务。
-- **任务：使用zap进行日志记录**
-  - 状态：已完成
-  - 结果：zap依赖已添加到`go.mod`文件中，`main.go`文件中已初始化zap日志库并添加了日志记录功能，记录API请求和相关操作。
-  - 来源：最终结果来自 'Code' 模式子任务。
-- **任务：将Zap日志库的初始化逻辑封装到独立包**
-  - 状态：已完成
-  - 结果：`logger`包现已位于`pkg/logger`目录中，包含了自定义的日志配置选项，并支持分别控制输出到控制台和文件。`main.go`文件已更新，以使用新的包结构和API。
-  - 来源：最终结果来自 'Code' 模式子任务。
-- **任务：将LoggerConfig中的Level类型改为string**
-  - 状态：已完成
-  - 结果：`LoggerConfig`结构体中的`Level`字段类型已从`zap.AtomicLevel`改为`string`，并更新了相关代码以确保日志记录功能正常工作。
-  - 来源：最终结果来自 'Code' 模式子任务。
-- **任务：在logger包中新增CallerSkip和AddStacktrace的配置**
-  - 状态：已完成
-  - 结果：`LoggerConfig`结构体中已添加`CallerSkip`和`AddStacktrace`字段，并且日志初始化逻辑已更新以正确应用这些配置。
-  - 来源：最终结果来自 'Code' 模式子任务。
-- **任务：设计 Go 项目结构并集成 Fx 和 Entgo**
-  - 状态：已完成
-  - 结果：已设计并实施了符合 Go 最佳实践的项目结构，成功集成了 Fx 进行依赖注入和 Entgo 作为数据库 ORM。项目结构清晰、可维护且符合模块化设计原则。所有必要的目录和文件已创建，代码已生成，组件已通过 Fx 连接。详细的项目结构设计计划已记录在 `memory-bank/project-structure.md` 中。
-  - 来源：最终结果来自 'Architect' 模式子任务，详细工作过程来自 `activeContext.md`（短期记忆）已整合到长期记忆中。
-- **任务：将 UserRepository 拆分到单独文件中**
-  - 状态：已完成
-  - 结果：已成功将 `UserRepository` 从 `internal/repository/repository.go` 文件中拆分到 `internal/repository/user.go` 文件中。代码结构更加清晰，符合模块化设计原则。
-  - 来源：最终结果来自 'Code' 模式子任务，详细工作过程来自 `activeContext.md`（短期记忆）已整合到长期记忆中。
-- **任务：将 service.go 重命名为 user.go**
-  - 状态：已完成
-  - 结果：已成功将 `internal/service/service.go` 文件重命名为 `internal/service/user.go`，并检查了相关引用，确认无需更新代码。
-  - 来源：最终结果来自 'Code' 模式子任务，详细工作过程来自 `activeContext.md`（短期记忆）已整合到长期记忆中。
-- **任务：拆分 fx.Provide 调用**
-  - 状态：已完成
-  - 结果：已成功拆分 `fx.Provide` 调用，并将其组织到模块化的结构中。代码结构更加清晰，符合项目设计原则，相关引用已更新。
-  - 来源：最终结果来自 'Code' 模式子任务，详细工作过程来自 `activeContext.md`（短期记忆）已整合到长期记忆中。
-- **任务：拆分 router.go 文件**
-  - 状态：已完成
-  - 结果：已成功将用户路由逻辑拆分到 `internal/api/router/user.go` 文件中，并将 `internal/api/router.go` 文件移动到 `internal/api/router/` 目录下，更新了相关引用以确保项目正常运行。
-  - 来源：最终结果来自 'Code' 模式子任务，详细工作过程来自 `activeContext.md`（短期记忆）已整合到长期记忆中。
-- **任务：在 router 的 user.go 中注入 userhandler**
-  - 状态：已完成
-  - 结果：已成功在 `internal/api/router/user.go` 文件中注入 `userhandler`，代码结构清晰且符合项目设计原则，相关引用已更新，路由逻辑已修改为使用 `RouterRegistry` 来管理多个 `router`，提高了代码的可扩展性。
-  - 来源：最终结果来自 'Code' 模式子任务，详细工作过程来自 `activeContext.md`（短期记忆）已整合到长期记忆中。
-- **任务：新增NotFound中间件**
-  - 状态：已完成
-  - 结果：已成功在`internal/api/middleware/`目录下创建了`notfound.go`文件，实现返回404状态码和适当错误消息的功能。更新了`cmd/nebula-live/main.go`文件，确保NotFound中间件在所有路由之后被调用，用于处理未匹配的请求。
-  - 来源：最终结果来自 'Code' 模式子任务，详细工作过程未记录在`activeContext.md`中。
+- **任务完成**：为当前项目设计并实现了通用的response结构。
+  - **结果**：包含code、message和data字段，其中data是泛型类型，并且已集成到Fiber的全局错误处理机制中。
+  - **文件更新**：
+    - 创建了`internal/entity/response.go`定义response结构。
+    - 创建了`internal/api/middleware/error.go`处理错误。
+    - 更新了`internal/app/fiber.go`以使用自定义错误处理器。
+  - **来源**：最终结果来自子任务“设计通用response结构”。
+- **任务完成**：在 `internal/entity/response.go` 文件中添加了常用错误响应函数。
+  - **结果**：添加了 `BadRequestResponse`、`UnauthorizedResponse`、`ForbiddenResponse`、`NotFoundResponse` 和 `InternalServerErrorResponse` 函数，使用现有的 `ErrorResponse` 函数设置相应的 HTTP 状态码和消息。
+  - **文件更新**：
+    - 更新了`internal/entity/response.go`文件。
+  - **来源**：最终结果来自子任务“在 `internal/entity/response.go` 文件中添加常用错误响应”。
+- **任务完成**：增强 `ErrorHandler` 函数以在遇到 500 错误时打印日志。
+  - **结果**：修改了 `internal/api/middleware/error.go` 文件中的 `ErrorHandler` 函数，当错误代码为 500 时使用 Fiber 的日志功能打印错误详情。
+  - **文件更新**：
+    - 更新了`internal/api/middleware/error.go`文件。
+  - **来源**：最终结果来自子任务“增强 `ErrorHandler` 函数以在遇到 500 错误时打印日志”。

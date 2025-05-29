@@ -11,7 +11,8 @@ import (
 
 func NewFiberApp(registry *router.RouterRegistry, logger *logger.Logger) *fiber.App {
 	app := fiber.New(fiber.Config{
-		AppName: "Nebula",
+		AppName:      "Nebula",
+		ErrorHandler: middleware.ErrorHandler,
 	})
 
 	log.SetLogger(fiberzap.NewLogger(fiberzap.LoggerConfig{
