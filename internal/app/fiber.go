@@ -24,7 +24,6 @@ func NewFiberApp(registry *router.RouterRegistry, logger *logger.Logger) *fiber.
 
 	middleware.Common(app, logger.GetZapLogger())
 
-	// 设置 API 路由
 	router.SetupRouter(app, registry)
 
 	middleware.NotFound(app)
