@@ -18,12 +18,12 @@ func NewUserRepository(client *Client) *UserRepository {
 // CreateUser creates a new user.
 func (r *UserRepository) CreateUser(ctx context.Context, name, email string) (*ent.User, error) {
 	return r.client.User.Create().
-		SetName(name).
+		SetUsername(name).
 		SetEmail(email).
 		Save(ctx)
 }
 
 // GetUserByID gets a user by ID.
-func (r *UserRepository) GetUserByID(ctx context.Context, id int) (*ent.User, error) {
+func (r *UserRepository) GetUserByID(ctx context.Context, id uint32) (*ent.User, error) {
 	return r.client.User.Get(ctx, id)
 }

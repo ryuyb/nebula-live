@@ -45,12 +45,12 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // GetUserByID handles getting a user by ID.
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID"})
 	}
 
-	user, err := h.userService.GetUserByID(c.Context(), id)
+	user, err := h.userService.GetUserByID(c.Context(), uint32(id))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}

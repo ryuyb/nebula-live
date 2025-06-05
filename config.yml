@@ -6,7 +6,7 @@ server:
 logging:
   level: "info"
   output_to_console: true
-  output_to_file: true
+  output_to_file: false
   output_file_path: "./logs/nebula-live.log"
   use_color_level: true
   max_size_mb: 10
@@ -18,6 +18,8 @@ logging:
 
 # 数据库配置
 database:
-  type: "postgres"
-  connection: "host=localhost port=5432 user=postgres password=postgres dbname=nebula_live sslmode=disable"
+#  type: "postgres"
+#  connection: "host=localhost port=5432 user=postgres password=postgres dbname=nebula_live sslmode=disable"
+  type: "sqlite3"
+  connection: "./nebula.db?_fk=1&_pragma=foreign_keys(1)"
   migrate: true

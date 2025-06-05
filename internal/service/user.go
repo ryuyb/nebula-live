@@ -22,6 +22,6 @@ func (s *UserService) CreateUser(ctx context.Context, name, email string) (*ent.
 }
 
 // GetUserByID gets a user by ID.
-func (s *UserService) GetUserByID(ctx context.Context, id int) (*ent.User, error) {
+func (s *UserService) GetUserByID(ctx context.Context, id uint32) (*ent.User, error) {
 	return s.userRepo.GetUserByID(ctx, id)
 }

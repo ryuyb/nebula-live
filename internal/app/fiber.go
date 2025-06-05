@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/contrib/fiberzap/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -13,6 +14,8 @@ func NewFiberApp(registry *router.RouterRegistry, logger *logger.Logger) *fiber.
 	app := fiber.New(fiber.Config{
 		AppName:      "Nebula",
 		ErrorHandler: middleware.ErrorHandler,
+		JSONEncoder:  sonic.Marshal,
+		JSONDecoder:  sonic.Unmarshal,
 	})
 
 	log.SetLogger(fiberzap.NewLogger(fiberzap.LoggerConfig{

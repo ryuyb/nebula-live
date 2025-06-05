@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"errors"
+	"github.com/samber/lo"
 	"go.uber.org/zap"
 	"nebulaLive/internal/entity"
 
@@ -16,10 +16,9 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 	message := "Internal Server Error"
 
 	// 检查是否为Fiber错误
-	var e *fiber.Error
-	if errors.As(err, &e) {
-		code = e.Code
-		message = e.Message
+	if fiberErr, ok := lo.ErrorsAs[*fiber.Error](err); ok {
+		code = fiberErr.Code
+		message = fiberErr.Message
 	}
 
 	// 当错误代码为500时，记录错误日志
