@@ -1,9 +1,7 @@
 package bilibili
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"nebulaLive/pkg/live"
 	"net/http"
 	"strconv"
@@ -11,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/tidwall/gjson"
 	"go.uber.org/zap"
-	"resty.dev/v3"
 )
 
 const (
@@ -20,7 +17,7 @@ const (
 
 	roomInitUrl = "https://api.live.bilibili.com/room/v1/Room/room_init"
 	roomInfoUrl = "https://api.live.bilibili.com/room/v1/Room/get_info"
-	streamUrl   = "https://api.live.bilibili.com/room/v2/index/getRoomPlayInfo"
+	streamUrl   = "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo"
 )
 
 type Bilibili struct{}
@@ -51,7 +48,7 @@ func (l *Bilibili) GetInfo(roomId string) (*RoomInfo, error) {
 		return nil, err
 	}
 
-	var response RoomInfoResponse
+	var response ResponseWrapper[RoomInfo]
 	resp, err := live.Client.R().
 		SetQueryParam("room_id", realRoomId).
 		SetQueryParam("from", "room").
@@ -71,89 +68,61 @@ func (l *Bilibili) GetInfo(roomId string) (*RoomInfo, error) {
 	return &response.Data, nil
 }
 
-// GetStream 获取直播流信息
-func (b *Bilibili) GetStream(roomId string, quality int) (*StreamInfo, error) {
+// GetStreams 获取直播流信息
+func (l *Bilibili) GetStreams(roomId string, quality Quality, cookies []*http.Cookie) ([]StreamInfo, error) {
 	// 解析真实房间号
-	realRoomId, err := b.parseRealRoomId(roomId)
+	realRoomId, err := l.parseRealRoomId(roomId)
 	if err != nil {
-		return nil, fmt.Errorf("获取真实房间号失败: %v", err)
+		return nil, err
 	}
 
-	// 构建请求参数
-	params := map[string]string{
-		"room_id":  realRoomId,
-		"qn":       strconv.Itoa(quality),
-		"protocol": "0,1",   // 0: http_stream, 1: http_hls
-		"format":   "0,1,2", // 0: flv, 1: ts, 2: fmp4
-		"codec":    "0,1",   // 0: avc, 1: hevc
+	if cookies == nil {
+		cookies = []*http.Cookie{}
 	}
 
-	// 发送请求
-	client := resty.New()
-	req := client.R()
-	for k, v := range params {
-		req.SetQueryParam(k, v)
-	}
-	resp, err := req.Get(streamUrl)
+	var playInfoResp ResponseWrapper[RoomPlayInfoResponse]
+	resp, err := live.Client.R().
+		SetQueryParams(map[string]string{
+			"room_id":  realRoomId,
+			"qn":       strconv.Itoa(int(quality)),
+			"protocol": "0,1",   // 0: http_stream, 1: http_hls
+			"format":   "0,1,2", // 0: flv, 1: ts, 2: fmp4
+			"codec":    "0,1",   // 0: avc, 1: hevc
+		}).
+		SetCookies(cookies).
+		SetResult(&playInfoResp).
+		Get(streamUrl)
+
 	if err != nil {
-		return nil, fmt.Errorf("请求失败: %v", err)
+		log.Errorw("get room stream info fail", zap.Error(err))
+		return nil, fmt.Errorf("failed to get room stream info: %w", err)
+	}
+	if resp.StatusCode() != http.StatusOK {
+		return nil, live.ErrRoomNotExist
+	}
+	if playInfoResp.Code != 0 {
+		return nil, live.ErrRoomNotExist
 	}
 
-	// 读取响应体
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("读取响应失败: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// 解析响应
-	var streamResp StreamResponse
-	if err := json.Unmarshal(body, &streamResp); err != nil {
-		return nil, fmt.Errorf("解析响应失败: %v", err)
-	}
-
-	// 检查响应状态
-	if streamResp.Code != 0 {
-		return nil, fmt.Errorf("API返回错误: %s", streamResp.Message)
-	}
-
-	// 检查直播状态
-	if streamResp.Data.LiveStatus != 1 {
-		return nil, fmt.Errorf("直播间未开播")
-	}
-
-	// 获取播放流信息
-	if len(streamResp.Data.PlayURLInfo.PlayURL.StreamInfo) == 0 {
-		return nil, fmt.Errorf("未找到可用的播放流")
-	}
-
-	// 遍历流信息找到合适的流
-	for _, stream := range streamResp.Data.PlayURLInfo.PlayURL.StreamInfo {
-		if stream.ProtocolName == "http_stream" {
-			for _, format := range stream.Format {
-				if format.FormatName == "flv" {
-					for _, codec := range format.Codec {
-						if codec.CurrentQn == quality {
-							// 构建完整的播放地址
-							url := codec.BaseURL
-							if len(codec.URLInfo) > 0 {
-								url = codec.URLInfo[0].Host + codec.BaseURL + codec.URLInfo[0].Extra
-							}
-
-							return &StreamInfo{
-								URL:       url,
-								Format:    format.FormatName,
-								Codec:     codec.CodecName,
-								Quality:   codec.CurrentQn,
-								Bandwidth: 0,  // 新API中没有带宽信息
-								FrameRate: "", // 新API中没有帧率信息
-							}, nil
-						}
+	streamInfos := make([]StreamInfo, 0)
+	streamResp := playInfoResp.Data.PlayurlInfo.Playurl.Stream
+	for _, stream := range streamResp {
+		for _, format := range stream.Format {
+			for _, codec := range format.Codec {
+				for _, urlInfo := range codec.URLInfo {
+					info := StreamInfo{
+						URL:           urlInfo.Host + codec.BaseURL + urlInfo.Extra,
+						ProtocolName:  stream.ProtocolName,
+						Format:        format.FormatName,
+						Codec:         codec.CodecName,
+						Quality:       codec.CurrentQn,
+						AcceptQuality: codec.AcceptQn,
 					}
+					streamInfos = append(streamInfos, info)
 				}
 			}
 		}
 	}
 
-	return nil, fmt.Errorf("未找到指定清晰度的播放流")
+	return streamInfos, nil
 }

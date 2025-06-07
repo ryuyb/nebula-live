@@ -59,122 +59,88 @@ type StudioInfo struct {
 	MasterList []int `json:"master_list"` // 主播列表
 }
 
-// RoomInfoResponse API响应结构
-type RoomInfoResponse struct {
-	Code    int      `json:"code"`
-	Message string   `json:"message"`
-	Data    RoomInfo `json:"data"`
+type ResponseWrapper[T any] struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    T      `json:"data"`
 }
 
 // StreamInfo 播放流信息
 type StreamInfo struct {
-	URL       string `json:"url"`        // 播放地址
-	Format    string `json:"format"`     // 格式
-	Codec     string `json:"codec"`      // 编码
-	Quality   int    `json:"quality"`    // 清晰度
-	Bandwidth int    `json:"bandwidth"`  // 带宽
-	FrameRate string `json:"frame_rate"` // 帧率
+	URL           string `json:"url"`            // 播放地址
+	ProtocolName  string `json:"protocol_name"`  // 协议名
+	Format        string `json:"format"`         // 格式
+	Codec         string `json:"codec"`          // 编码
+	Quality       int    `json:"quality"`        // 清晰度
+	AcceptQuality []int  `json:"accept_quality"` // 可选择的清晰度
 }
 
-// StreamResponse 播放流API响应
-type StreamResponse struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Data    struct {
-		RoomID           int64    `json:"room_id"`            // 房间号
-		ShortID          int64    `json:"short_id"`           // 短号
-		UID              int64    `json:"uid"`                // 主播uid
-		NeedP2P          int      `json:"need_p2p"`           // 是否需要P2P
-		IsHidden         bool     `json:"is_hidden"`          // 是否隐藏
-		IsLocked         bool     `json:"is_locked"`          // 是否锁定
-		LockTill         int      `json:"lock_till"`          // 锁定时间
-		HiddenTill       int      `json:"hidden_till"`        // 隐藏时间
-		Encrypted        bool     `json:"encrypted"`          // 是否加密
-		PwdVerified      bool     `json:"pwd_verified"`       // 密码验证
-		LiveStatus       int      `json:"live_status"`        // 直播状态
-		LiveTime         int      `json:"live_time"`          // 直播时长
-		LiveType         int      `json:"live_type"`          // 直播类型
-		AreaID           int      `json:"area_id"`            // 分区ID
-		ParentAreaID     int      `json:"parent_area_id"`     // 父分区ID
-		ParentAreaName   string   `json:"parent_area_name"`   // 父分区名称
-		OldAreaID        int      `json:"old_area_id"`        // 旧分区ID
-		Background       string   `json:"background"`         // 背景图
-		Title            string   `json:"title"`              // 标题
-		UserCover        string   `json:"user_cover"`         // 用户封面
-		Keyframe         string   `json:"keyframe"`           // 关键帧
-		IsStrictRoom     bool     `json:"is_strict_room"`     // 是否严格房间
-		LiveTimeStr      string   `json:"live_time_str"`      // 直播时长字符串
-		Tags             string   `json:"tags"`               // 标签
-		IsAnchor         int      `json:"is_anchor"`          // 是否主播
-		RoomSilentType   string   `json:"room_silent_type"`   // 房间禁言类型
-		RoomSilentLevel  int      `json:"room_silent_level"`  // 房间禁言等级
-		RoomSilentSecond int      `json:"room_silent_second"` // 房间禁言时间
-		AreaName         string   `json:"area_name"`          // 分区名称
-		Pendants         string   `json:"pendants"`           // 头像框
-		AreaPendants     string   `json:"area_pendants"`      // 分区头像框
-		HotWords         []string `json:"hot_words"`          // 热词
-		HotWordsStatus   int      `json:"hot_words_status"`   // 热词状态
-		Verify           string   `json:"verify"`             // 认证信息
-		NewPendants      struct {
-			Frame struct {
-				Name       string `json:"name"`         // 名称
-				Value      string `json:"value"`        // 值
-				Position   int    `json:"position"`     // 位置
-				Desc       string `json:"desc"`         // 描述
-				Area       int    `json:"area"`         // 分区
-				AreaOld    int    `json:"area_old"`     // 旧分区
-				BgColor    string `json:"bg_color"`     // 背景色
-				BgPic      string `json:"bg_pic"`       // 背景图
-				UseOldArea bool   `json:"use_old_area"` // 是否使用旧分区
-			} `json:"frame"` // 头像框
-			Badge struct {
-				Name     string `json:"name"`     // 名称
-				Position int    `json:"position"` // 位置
-				Value    string `json:"value"`    // 值
-				Desc     string `json:"desc"`     // 描述
-			} `json:"badge"` // 大V
-		} `json:"new_pendants"` // 新头像框
-		UpSession            string `json:"up_session"`              // 上行会话
-		PkStatus             int    `json:"pk_status"`               // PK状态
-		PkID                 int    `json:"pk_id"`                   // PK ID
-		BattleID             int    `json:"battle_id"`               // 战斗ID
-		AllowChangeAreaTime  int    `json:"allow_change_area_time"`  // 允许更换分区时间
-		AllowUploadCoverTime int    `json:"allow_upload_cover_time"` // 允许上传封面时间
-		StudioInfo           struct {
-			Status     int   `json:"status"`      // 状态
-			MasterList []int `json:"master_list"` // 主播列表
-		} `json:"studio_info"` // 工作室信息
-		PlayURLInfo struct {
-			ConfJSON string `json:"conf_json"` // 配置JSON
-			PlayURL  struct {
-				StreamInfo []struct {
-					ProtocolName string `json:"protocol_name"` // 协议名称
-					Format       []struct {
-						FormatName string `json:"format_name"` // 格式名称
-						Codec      []struct {
-							CodecName string `json:"codec_name"` // 编码名称
-							CurrentQn int    `json:"current_qn"` // 当前清晰度
-							AcceptQn  []int  `json:"accept_qn"`  // 可接受的清晰度
-							BaseURL   string `json:"base_url"`   // 基础URL
-							URLInfo   []struct {
-								Host      string `json:"host"`       // 主机
-								Extra     string `json:"extra"`      // 额外信息
-								StreamTTL int    `json:"stream_ttl"` // 流TTL
-							} `json:"url_info"` // URL信息
-							HdrQn     interface{} `json:"hdr_qn"`     // HDR清晰度
-							DolbyType int         `json:"dolby_type"` // 杜比类型
-							AttrName  string      `json:"attr_name"`  // 属性名称
-						} `json:"codec"` // 编码
-					} `json:"format"` // 格式
-				} `json:"stream_info"` // 流信息
-			} `json:"play_url"` // 播放URL
+// RoomPlayInfoResponse 播放流API响应
+type RoomPlayInfoResponse struct {
+	RoomID          int   `json:"room_id"`      // 直播间id
+	ShortID         int   `json:"short_id"`     // 直播间短id
+	UID             int   `json:"uid"`          // 主播uid
+	IsHidden        bool  `json:"is_hidden"`    // 直播间是否被隐藏
+	IsLocked        bool  `json:"is_locked"`    // 直播间是否被锁定
+	IsPortrait      bool  `json:"is_portrait"`  // 是否竖屏
+	LiveStatus      int   `json:"live_status"`  // 直播状态 0：未开播 1：直播中 2：轮播中
+	HiddenTill      int   `json:"hidden_till"`  // 隐藏结束时间
+	LockTill        int   `json:"lock_till"`    // 封禁结束时间 秒级时间戳
+	Encrypted       bool  `json:"encrypted"`    // 直播间为加密直播间
+	PwdVerified     bool  `json:"pwd_verified"` // 是否通过密码验证 当encrypted为true时才有意义
+	LiveTime        int   `json:"live_time"`    // 本次开播时间 秒级时间戳
+	RoomShield      int   `json:"room_shield"`
+	AllSpecialTypes []any `json:"all_special_types"`
+	PlayurlInfo     struct {
+		ConfJSON string `json:"conf_json"`
+		Playurl  struct {
+			Cid     int `json:"cid"` // 直播间id
+			GQnDesc []struct {
+				Qn       int    `json:"qn"`   // 清晰度代码
+				Desc     string `json:"desc"` // 清晰度描述
+				HdrDesc  string `json:"hdr_desc"`
+				AttrDesc any    `json:"attr_desc"`
+			} `json:"g_qn_desc"` // 清晰度列表
+			Stream []struct {
+				ProtocolName string `json:"protocol_name"` // 协议名
+				Format       []struct {
+					FormatName string `json:"format_name"` // 格式名
+					Codec      []struct {
+						CodecName string `json:"codec_name"` // 编码名
+						CurrentQn int    `json:"current_qn"` // 当前清晰度编码
+						AcceptQn  []int  `json:"accept_qn"`  // 可用清晰度编码列表
+						BaseURL   string `json:"base_url"`   // 播放源路径
+						URLInfo   []struct {
+							Host      string `json:"host"`  // 域名
+							Extra     string `json:"extra"` // URL参数
+							StreamTTL int    `json:"stream_ttl"`
+						} `json:"url_info"` // 域名信息列表
+						HdrQn     any    `json:"hdr_qn"`
+						DolbyType int    `json:"dolby_type"`
+						AttrName  string `json:"attr_name"`
+					} `json:"codec"` // 编码列表
+				} `json:"format"` // 格式列表
+			} `json:"stream"` // 直播流信息
 			P2PData struct {
-				P2P      bool   `json:"p2p"`       // 是否P2P
-				P2PType  int    `json:"p2p_type"`  // P2P类型
-				MP2P     bool   `json:"m_p2p"`     // 是否移动P2P
-				MServers string `json:"m_servers"` // 移动服务器
-			} `json:"p2p_data"` // P2P数据
-			DolbyQn interface{} `json:"dolby_qn"` // 杜比清晰度
-		} `json:"play_url_info"` // 播放URL信息
-	} `json:"data"`
+				P2P      bool `json:"p2p"`
+				P2PType  int  `json:"p2p_type"`
+				MP2P     bool `json:"m_p2p"`
+				MServers any  `json:"m_servers"`
+			} `json:"p2p_data"`
+			DolbyQn any `json:"dolby_qn"`
+		} `json:"playurl"`
+	} `json:"playurl_info"` // 直播流信息
 }
+
+// Quality 可接受的清晰度
+type Quality int
+
+const (
+	Dolby    Quality = 30000 // 杜比
+	FourK    Quality = 20000 // 4K
+	Original Quality = 10000 // 原画
+	BluRay   Quality = 400   // 蓝光
+	UltraHd  Quality = 250   //超清
+	Hd       Quality = 150   // 高清
+	Smooth   Quality = 80    // 流畅
+)
