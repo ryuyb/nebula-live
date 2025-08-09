@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # 应用服务 (开发环境)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    environment:
+      - NEBULA_APP_ENV=development
+      - NEBULA_DATABASE_DRIVER=sqlite
+      - NEBULA_DATABASE_DATABASE=data/nebula_live.db
+    volumes:
+      - .:/app
+      - /app/tmp  # 防止挂载覆盖 tmp 目录
+    working_dir: /app
+    stdin_open: true
+    tty: true
+
+  # PostgreSQL 数据库 (开发环境)
+  postgres-dev:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: nebula_live_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    profiles:
+      - postgres
+
+  # Redis (开发环境)
+  redis-dev:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+    profiles:
+      - redis
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
