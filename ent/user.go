@@ -32,8 +32,51 @@ type User struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt    time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// UserRoles holds the value of the user_roles edge.
+	UserRoles []*UserRole `json:"user_roles,omitempty"`
+	// AssignedUserRoles holds the value of the assigned_user_roles edge.
+	AssignedUserRoles []*UserRole `json:"assigned_user_roles,omitempty"`
+	// AssignedRolePermissions holds the value of the assigned_role_permissions edge.
+	AssignedRolePermissions []*RolePermission `json:"assigned_role_permissions,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [3]bool
+}
+
+// UserRolesOrErr returns the UserRoles value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
+	if e.loadedTypes[0] {
+		return e.UserRoles, nil
+	}
+	return nil, &NotLoadedError{edge: "user_roles"}
+}
+
+// AssignedUserRolesOrErr returns the AssignedUserRoles value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AssignedUserRolesOrErr() ([]*UserRole, error) {
+	if e.loadedTypes[1] {
+		return e.AssignedUserRoles, nil
+	}
+	return nil, &NotLoadedError{edge: "assigned_user_roles"}
+}
+
+// AssignedRolePermissionsOrErr returns the AssignedRolePermissions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AssignedRolePermissionsOrErr() ([]*RolePermission, error) {
+	if e.loadedTypes[2] {
+		return e.AssignedRolePermissions, nil
+	}
+	return nil, &NotLoadedError{edge: "assigned_role_permissions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -127,6 +170,21 @@ func (_m *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryUserRoles queries the "user_roles" edge of the User entity.
+func (_m *User) QueryUserRoles() *UserRoleQuery {
+	return NewUserClient(_m.config).QueryUserRoles(_m)
+}
+
+// QueryAssignedUserRoles queries the "assigned_user_roles" edge of the User entity.
+func (_m *User) QueryAssignedUserRoles() *UserRoleQuery {
+	return NewUserClient(_m.config).QueryAssignedUserRoles(_m)
+}
+
+// QueryAssignedRolePermissions queries the "assigned_role_permissions" edge of the User entity.
+func (_m *User) QueryAssignedRolePermissions() *RolePermissionQuery {
+	return NewUserClient(_m.config).QueryAssignedRolePermissions(_m)
 }
 
 // Update returns a builder for updating this User.

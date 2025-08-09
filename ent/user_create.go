@@ -6,7 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"nebula-live/ent/rolepermission"
 	"nebula-live/ent/user"
+	"nebula-live/ent/userrole"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -112,6 +114,51 @@ func (_c *UserCreate) SetNillableUpdatedAt(v *time.Time) *UserCreate {
 func (_c *UserCreate) SetID(v uint) *UserCreate {
 	_c.mutation.SetID(v)
 	return _c
+}
+
+// AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
+func (_c *UserCreate) AddUserRoleIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddUserRoleIDs(ids...)
+	return _c
+}
+
+// AddUserRoles adds the "user_roles" edges to the UserRole entity.
+func (_c *UserCreate) AddUserRoles(v ...*UserRole) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUserRoleIDs(ids...)
+}
+
+// AddAssignedUserRoleIDs adds the "assigned_user_roles" edge to the UserRole entity by IDs.
+func (_c *UserCreate) AddAssignedUserRoleIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddAssignedUserRoleIDs(ids...)
+	return _c
+}
+
+// AddAssignedUserRoles adds the "assigned_user_roles" edges to the UserRole entity.
+func (_c *UserCreate) AddAssignedUserRoles(v ...*UserRole) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAssignedUserRoleIDs(ids...)
+}
+
+// AddAssignedRolePermissionIDs adds the "assigned_role_permissions" edge to the RolePermission entity by IDs.
+func (_c *UserCreate) AddAssignedRolePermissionIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddAssignedRolePermissionIDs(ids...)
+	return _c
+}
+
+// AddAssignedRolePermissions adds the "assigned_role_permissions" edges to the RolePermission entity.
+func (_c *UserCreate) AddAssignedRolePermissions(v ...*RolePermission) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddAssignedRolePermissionIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -276,6 +323,54 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if nodes := _c.mutation.UserRolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.UserRolesTable,
+			Columns: []string{user.UserRolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AssignedUserRolesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.AssignedUserRolesTable,
+			Columns: []string{user.AssignedUserRolesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.AssignedRolePermissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.AssignedRolePermissionsTable,
+			Columns: []string{user.AssignedRolePermissionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(rolepermission.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

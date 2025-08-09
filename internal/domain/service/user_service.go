@@ -26,6 +26,9 @@ type UserService interface {
 	// CreateUser 创建用户
 	CreateUser(ctx context.Context, username, email, password, nickname string) (*entity.User, error)
 
+	// CreateUserWithRole 创建用户并分配指定角色
+	CreateUserWithRole(ctx context.Context, username, email, password, nickname, roleName string, assignerID uint) (*entity.User, error)
+
 	// GetUserByID 根据ID获取用户
 	GetUserByID(ctx context.Context, id uint) (*entity.User, error)
 
@@ -58,25 +61,53 @@ type UserService interface {
 
 	// BanUser 禁用用户
 	BanUser(ctx context.Context, id uint) error
+
+	// 角色管理相关方法
+	// AssignRole 为用户分配角色
+	AssignRole(ctx context.Context, userID uint, roleName string, assignerID uint) error
+
+	// RemoveRole 移除用户角色
+	RemoveRole(ctx context.Context, userID uint, roleName string) error
+
+	// GetUserRoles 获取用户的所有角色
+	GetUserRoles(ctx context.Context, userID uint) ([]*entity.Role, error)
+
+	// GetUserPermissions 获取用户的所有权限
+	GetUserPermissions(ctx context.Context, userID uint) ([]*entity.Permission, error)
+
+	// HasRole 检查用户是否拥有指定角色
+	HasRole(ctx context.Context, userID uint, roleName string) (bool, error)
+
+	// HasPermission 检查用户是否拥有指定权限
+	HasPermission(ctx context.Context, userID uint, resource, action string) (bool, error)
 }
 
 // userService 用户领域服务实现
 type userService struct {
-	userRepo repository.UserRepository
+	userRepo    repository.UserRepository
+	rbacService RBACService
 }
 
 // NewUserService 创建用户服务实例
-func NewUserService(userRepo repository.UserRepository) UserService {
+func NewUserService(userRepo repository.UserRepository, rbacService RBACService) UserService {
 	return &userService{
-		userRepo: userRepo,
+		userRepo:    userRepo,
+		rbacService: rbacService,
 	}
 }
 
-// CreateUser 创建用户
+// CreateUser 创建用户 (默认分配普通用户角色)
 func (s *userService) CreateUser(ctx context.Context, username, email, password, nickname string) (*entity.User, error) {
-	logger.Info("Creating new user", 
+	// 创建用户并分配默认角色
+	return s.CreateUserWithRole(ctx, username, email, password, nickname, entity.RoleNameUser, 0)
+}
+
+// CreateUserWithRole 创建用户并分配指定角色
+func (s *userService) CreateUserWithRole(ctx context.Context, username, email, password, nickname, roleName string, assignerID uint) (*entity.User, error) {
+	logger.Info("Creating new user with role", 
 		zap.String("username", username), 
-		zap.String("email", email))
+		zap.String("email", email),
+		zap.String("role", roleName))
 
 	// 检查用户名是否已存在
 	exists, err := s.userRepo.ExistsByUsername(ctx, username)
@@ -134,6 +165,28 @@ func (s *userService) CreateUser(ctx context.Context, username, email, password,
 			zap.String("email", email), 
 			zap.Error(err))
 		return nil, err
+	}
+
+	// 分配角色
+	role, err := s.rbacService.GetRoleByName(ctx, roleName)
+	if err != nil {
+		logger.Error("Failed to get role for new user", 
+			zap.Uint("user_id", user.ID),
+			zap.String("role", roleName),
+			zap.Error(err))
+		// 即使角色分配失败，用户已创建，不回滚
+	} else {
+		err = s.rbacService.AssignRoleToUser(ctx, user.ID, role.ID, assignerID)
+		if err != nil {
+			logger.Error("Failed to assign role to new user", 
+				zap.Uint("user_id", user.ID),
+				zap.String("role", roleName),
+				zap.Error(err))
+		} else {
+			logger.Info("Role assigned to new user successfully", 
+				zap.Uint("user_id", user.ID),
+				zap.String("role", roleName))
+		}
 	}
 
 	logger.Info("User created successfully", 
@@ -241,4 +294,86 @@ func (s *userService) BanUser(ctx context.Context, id uint) error {
 
 	user.Ban()
 	return s.userRepo.Update(ctx, user)
+}
+
+// RBAC相关方法实现
+
+// AssignRole 为用户分配角色
+func (s *userService) AssignRole(ctx context.Context, userID uint, roleName string, assignerID uint) error {
+	// 检查用户是否存在
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return ErrUserNotFound
+	}
+
+	// 获取角色
+	role, err := s.rbacService.GetRoleByName(ctx, roleName)
+	if err != nil {
+		return err
+	}
+
+	// 分配角色
+	return s.rbacService.AssignRoleToUser(ctx, userID, role.ID, assignerID)
+}
+
+// RemoveRole 移除用户角色
+func (s *userService) RemoveRole(ctx context.Context, userID uint, roleName string) error {
+	// 检查用户是否存在
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return ErrUserNotFound
+	}
+
+	// 获取角色
+	role, err := s.rbacService.GetRoleByName(ctx, roleName)
+	if err != nil {
+		return err
+	}
+
+	// 移除角色
+	return s.rbacService.RemoveRoleFromUser(ctx, userID, role.ID)
+}
+
+// GetUserRoles 获取用户的所有角色
+func (s *userService) GetUserRoles(ctx context.Context, userID uint) ([]*entity.Role, error) {
+	// 检查用户是否存在
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+
+	return s.rbacService.GetUserRoles(ctx, userID)
+}
+
+// GetUserPermissions 获取用户的所有权限
+func (s *userService) GetUserPermissions(ctx context.Context, userID uint) ([]*entity.Permission, error) {
+	// 检查用户是否存在
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+
+	return s.rbacService.GetUserPermissions(ctx, userID)
+}
+
+// HasRole 检查用户是否拥有指定角色
+func (s *userService) HasRole(ctx context.Context, userID uint, roleName string) (bool, error) {
+	// 检查用户是否存在
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return false, ErrUserNotFound
+	}
+
+	return s.rbacService.HasRole(ctx, userID, roleName)
+}
+
+// HasPermission 检查用户是否拥有指定权限
+func (s *userService) HasPermission(ctx context.Context, userID uint, resource, action string) (bool, error) {
+	// 检查用户是否存在
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return false, ErrUserNotFound
+	}
+
+	return s.rbacService.HasPermission(ctx, userID, resource, action)
 }

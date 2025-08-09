@@ -6,5 +6,6 @@ import "go.uber.org/fx"
 var MiddlewareModule = fx.Options(
 	fx.Provide(
 		NewAuthMiddleware,
+		NewRBACMiddleware,
 	),
 )

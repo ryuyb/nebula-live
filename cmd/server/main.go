@@ -19,6 +19,9 @@ import (
 
 func main() {
 	fxApp := fx.New(
+		// 禁用Fx详细日志
+		fx.NopLogger,
+		
 		// 基础设施层模块
 		infrastructure.InfrastructureModule,
 		
@@ -39,7 +42,7 @@ func main() {
 		
 		// 应用层模块
 		app.AppModule,
-		fx.Invoke(func(lc fx.Lifecycle, server *app.Server, client *ent.Client, zapLogger *zap.Logger) {
+		fx.Invoke(func(lc fx.Lifecycle, server *app.Server, client *ent.Client, rbacService service.RBACService, zapLogger *zap.Logger) {
 			// 初始化全局logger
 			logger.Initialize(zapLogger)
 			
@@ -48,6 +51,12 @@ func main() {
 					// 运行数据库迁移
 					if err := persistence.RunMigrations(ctx, client, zapLogger); err != nil {
 						zapLogger.Error("Failed to run migrations", zap.Error(err))
+						return err
+					}
+					
+					// 初始化RBAC系统数据
+					if err := rbacService.InitializeSystemData(ctx); err != nil {
+						zapLogger.Error("Failed to initialize RBAC system data", zap.Error(err))
 						return err
 					}
 					

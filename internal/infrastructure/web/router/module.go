@@ -18,6 +18,8 @@ var RouterModule = fx.Options(
 	// 提供各种路由器
 	fx.Provide(asRoute(NewUserRouter)),
 	fx.Provide(asRoute(NewAuthRouter)),
+	fx.Provide(asRoute(NewRoleRouter)),
+	fx.Provide(asRoute(NewPermissionRouter)),
 	
 	// 提供路由注册器
 	fx.Provide(NewRouterRegistry),

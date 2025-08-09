@@ -8,6 +8,150 @@ import (
 )
 
 var (
+	// PermissionsColumns holds the columns for the "permissions" table.
+	PermissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "display_name", Type: field.TypeString, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "resource", Type: field.TypeString, Size: 50},
+		{Name: "action", Type: field.TypeString, Size: 50},
+		{Name: "is_system", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// PermissionsTable holds the schema information for the "permissions" table.
+	PermissionsTable = &schema.Table{
+		Name:       "permissions",
+		Columns:    PermissionsColumns,
+		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "permission_name",
+				Unique:  true,
+				Columns: []*schema.Column{PermissionsColumns[1]},
+			},
+			{
+				Name:    "permission_resource",
+				Unique:  false,
+				Columns: []*schema.Column{PermissionsColumns[4]},
+			},
+			{
+				Name:    "permission_action",
+				Unique:  false,
+				Columns: []*schema.Column{PermissionsColumns[5]},
+			},
+			{
+				Name:    "permission_resource_action",
+				Unique:  true,
+				Columns: []*schema.Column{PermissionsColumns[4], PermissionsColumns[5]},
+			},
+			{
+				Name:    "permission_is_system",
+				Unique:  false,
+				Columns: []*schema.Column{PermissionsColumns[6]},
+			},
+			{
+				Name:    "permission_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{PermissionsColumns[7]},
+			},
+		},
+	}
+	// RolesColumns holds the columns for the "roles" table.
+	RolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "display_name", Type: field.TypeString, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "is_system", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// RolesTable holds the schema information for the "roles" table.
+	RolesTable = &schema.Table{
+		Name:       "roles",
+		Columns:    RolesColumns,
+		PrimaryKey: []*schema.Column{RolesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "role_name",
+				Unique:  true,
+				Columns: []*schema.Column{RolesColumns[1]},
+			},
+			{
+				Name:    "role_is_system",
+				Unique:  false,
+				Columns: []*schema.Column{RolesColumns[4]},
+			},
+			{
+				Name:    "role_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{RolesColumns[5]},
+			},
+		},
+	}
+	// RolePermissionsColumns holds the columns for the "role_permissions" table.
+	RolePermissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "assigned_at", Type: field.TypeTime},
+		{Name: "role_id", Type: field.TypeUint},
+		{Name: "permission_id", Type: field.TypeUint},
+		{Name: "assigned_by", Type: field.TypeUint, Nullable: true},
+	}
+	// RolePermissionsTable holds the schema information for the "role_permissions" table.
+	RolePermissionsTable = &schema.Table{
+		Name:       "role_permissions",
+		Columns:    RolePermissionsColumns,
+		PrimaryKey: []*schema.Column{RolePermissionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "role_permissions_roles_role",
+				Columns:    []*schema.Column{RolePermissionsColumns[2]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "role_permissions_permissions_permission",
+				Columns:    []*schema.Column{RolePermissionsColumns[3]},
+				RefColumns: []*schema.Column{PermissionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "role_permissions_users_assigner",
+				Columns:    []*schema.Column{RolePermissionsColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rolepermission_role_id",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[2]},
+			},
+			{
+				Name:    "rolepermission_permission_id",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[3]},
+			},
+			{
+				Name:    "rolepermission_role_id_permission_id",
+				Unique:  true,
+				Columns: []*schema.Column{RolePermissionsColumns[2], RolePermissionsColumns[3]},
+			},
+			{
+				Name:    "rolepermission_assigned_by",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[4]},
+			},
+			{
+				Name:    "rolepermission_assigned_at",
+				Unique:  false,
+				Columns: []*schema.Column{RolePermissionsColumns[1]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true},
@@ -48,11 +192,82 @@ var (
 			},
 		},
 	}
+	// UserRolesColumns holds the columns for the "user_roles" table.
+	UserRolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "assigned_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUint},
+		{Name: "role_id", Type: field.TypeUint},
+		{Name: "assigned_by", Type: field.TypeUint, Nullable: true},
+	}
+	// UserRolesTable holds the schema information for the "user_roles" table.
+	UserRolesTable = &schema.Table{
+		Name:       "user_roles",
+		Columns:    UserRolesColumns,
+		PrimaryKey: []*schema.Column{UserRolesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_roles_users_user",
+				Columns:    []*schema.Column{UserRolesColumns[2]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_roles_roles_role",
+				Columns:    []*schema.Column{UserRolesColumns[3]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_roles_users_assigner",
+				Columns:    []*schema.Column{UserRolesColumns[4]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userrole_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRolesColumns[2]},
+			},
+			{
+				Name:    "userrole_role_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserRolesColumns[3]},
+			},
+			{
+				Name:    "userrole_user_id_role_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserRolesColumns[2], UserRolesColumns[3]},
+			},
+			{
+				Name:    "userrole_assigned_by",
+				Unique:  false,
+				Columns: []*schema.Column{UserRolesColumns[4]},
+			},
+			{
+				Name:    "userrole_assigned_at",
+				Unique:  false,
+				Columns: []*schema.Column{UserRolesColumns[1]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		PermissionsTable,
+		RolesTable,
+		RolePermissionsTable,
 		UsersTable,
+		UserRolesTable,
 	}
 )
 
 func init() {
+	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
+	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
+	RolePermissionsTable.ForeignKeys[2].RefTable = UsersTable
+	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
+	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
+	UserRolesTable.ForeignKeys[2].RefTable = UsersTable
 }

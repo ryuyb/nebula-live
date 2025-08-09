@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -50,7 +51,17 @@ func (User) Fields() []ent.Field {
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		// 用户的用户角色关联
+		edge.From("user_roles", UserRole.Type).
+			Ref("user"),
+		// 作为分配者的用户角色关联
+		edge.From("assigned_user_roles", UserRole.Type).
+			Ref("assigner"),
+		// 作为分配者的角色权限关联
+		edge.From("assigned_role_permissions", RolePermission.Type).
+			Ref("assigner"),
+	}
 }
 
 // Indexes of the User.

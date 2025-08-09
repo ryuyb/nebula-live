@@ -7,5 +7,7 @@ var HandlerModule = fx.Options(
 	fx.Provide(
 		NewUserHandler,
 		NewAuthHandler,
+		NewRoleHandler,
+		NewPermissionHandler,
 	),
 )

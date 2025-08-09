@@ -6,5 +6,9 @@ import "go.uber.org/fx"
 var PersistenceModule = fx.Options(
 	fx.Provide(
 		NewUserRepository,
+		NewRoleRepository,
+		NewPermissionRepository,
+		NewUserRoleRepository,
+		NewRolePermissionRepository,
 	),
 )
