@@ -57,8 +57,8 @@ config.production.yaml
 dist/
 build/
 bin/
-server
-nebula-live
+/server
+/nebula-live
 
 # Coverage
 coverage.out
