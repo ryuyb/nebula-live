@@ -72,8 +72,5 @@ temp/
 # Air live reload
 .air/
 
-# Docker
-.dockerignore
-
 # Test cache
 .testcache/

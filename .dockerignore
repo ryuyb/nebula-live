@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+README.md
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Development files
+.air.toml
+.air/
+tmp/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Test files
+*_test.go
+testdata/
+
+# Build artifacts
+dist/
+build/
+bin/
+
+# Dependencies (will be downloaded)
+vendor/
+
+# Local config files
+config.local.yaml
+config.production.yaml
+.env
+.env.local
