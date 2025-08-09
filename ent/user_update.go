@@ -9,6 +9,7 @@ import (
 	"nebula-live/ent/predicate"
 	"nebula-live/ent/rolepermission"
 	"nebula-live/ent/user"
+	"nebula-live/ent/userpushsetting"
 	"nebula-live/ent/userrole"
 	"time"
 
@@ -177,6 +178,21 @@ func (_u *UserUpdate) AddAssignedRolePermissions(v ...*RolePermission) *UserUpda
 	return _u.AddAssignedRolePermissionIDs(ids...)
 }
 
+// AddPushSettingIDs adds the "push_settings" edge to the UserPushSetting entity by IDs.
+func (_u *UserUpdate) AddPushSettingIDs(ids ...uint) *UserUpdate {
+	_u.mutation.AddPushSettingIDs(ids...)
+	return _u
+}
+
+// AddPushSettings adds the "push_settings" edges to the UserPushSetting entity.
+func (_u *UserUpdate) AddPushSettings(v ...*UserPushSetting) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPushSettingIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -243,6 +259,27 @@ func (_u *UserUpdate) RemoveAssignedRolePermissions(v ...*RolePermission) *UserU
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveAssignedRolePermissionIDs(ids...)
+}
+
+// ClearPushSettings clears all "push_settings" edges to the UserPushSetting entity.
+func (_u *UserUpdate) ClearPushSettings() *UserUpdate {
+	_u.mutation.ClearPushSettings()
+	return _u
+}
+
+// RemovePushSettingIDs removes the "push_settings" edge to UserPushSetting entities by IDs.
+func (_u *UserUpdate) RemovePushSettingIDs(ids ...uint) *UserUpdate {
+	_u.mutation.RemovePushSettingIDs(ids...)
+	return _u
+}
+
+// RemovePushSettings removes "push_settings" edges to UserPushSetting entities.
+func (_u *UserUpdate) RemovePushSettings(v ...*UserPushSetting) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePushSettingIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -490,6 +527,51 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.PushSettingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.PushSettingsTable,
+			Columns: []string{user.PushSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpushsetting.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPushSettingsIDs(); len(nodes) > 0 && !_u.mutation.PushSettingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.PushSettingsTable,
+			Columns: []string{user.PushSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpushsetting.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PushSettingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.PushSettingsTable,
+			Columns: []string{user.PushSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpushsetting.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -657,6 +739,21 @@ func (_u *UserUpdateOne) AddAssignedRolePermissions(v ...*RolePermission) *UserU
 	return _u.AddAssignedRolePermissionIDs(ids...)
 }
 
+// AddPushSettingIDs adds the "push_settings" edge to the UserPushSetting entity by IDs.
+func (_u *UserUpdateOne) AddPushSettingIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.AddPushSettingIDs(ids...)
+	return _u
+}
+
+// AddPushSettings adds the "push_settings" edges to the UserPushSetting entity.
+func (_u *UserUpdateOne) AddPushSettings(v ...*UserPushSetting) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPushSettingIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -723,6 +820,27 @@ func (_u *UserUpdateOne) RemoveAssignedRolePermissions(v ...*RolePermission) *Us
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveAssignedRolePermissionIDs(ids...)
+}
+
+// ClearPushSettings clears all "push_settings" edges to the UserPushSetting entity.
+func (_u *UserUpdateOne) ClearPushSettings() *UserUpdateOne {
+	_u.mutation.ClearPushSettings()
+	return _u
+}
+
+// RemovePushSettingIDs removes the "push_settings" edge to UserPushSetting entities by IDs.
+func (_u *UserUpdateOne) RemovePushSettingIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.RemovePushSettingIDs(ids...)
+	return _u
+}
+
+// RemovePushSettings removes "push_settings" edges to UserPushSetting entities.
+func (_u *UserUpdateOne) RemovePushSettings(v ...*UserPushSetting) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePushSettingIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -993,6 +1111,51 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(rolepermission.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PushSettingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.PushSettingsTable,
+			Columns: []string{user.PushSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpushsetting.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPushSettingsIDs(); len(nodes) > 0 && !_u.mutation.PushSettingsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.PushSettingsTable,
+			Columns: []string{user.PushSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpushsetting.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PushSettingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.PushSettingsTable,
+			Columns: []string{user.PushSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpushsetting.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

@@ -8,5 +8,7 @@ var ServiceModule = fx.Options(
 		NewUserService,
 		NewRBACService,
 		NewLiveStreamService,
+		NewUserPushSettingService,
+		NewPushService,
 	),
 )

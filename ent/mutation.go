@@ -11,6 +11,7 @@ import (
 	"nebula-live/ent/role"
 	"nebula-live/ent/rolepermission"
 	"nebula-live/ent/user"
+	"nebula-live/ent/userpushsetting"
 	"nebula-live/ent/userrole"
 	"sync"
 	"time"
@@ -28,11 +29,12 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypePermission     = "Permission"
-	TypeRole           = "Role"
-	TypeRolePermission = "RolePermission"
-	TypeUser           = "User"
-	TypeUserRole       = "UserRole"
+	TypePermission      = "Permission"
+	TypeRole            = "Role"
+	TypeRolePermission  = "RolePermission"
+	TypeUser            = "User"
+	TypeUserPushSetting = "UserPushSetting"
+	TypeUserRole        = "UserRole"
 )
 
 // PermissionMutation represents an operation that mutates the Permission nodes in the graph.
@@ -2362,6 +2364,9 @@ type UserMutation struct {
 	assigned_role_permissions        map[uint]struct{}
 	removedassigned_role_permissions map[uint]struct{}
 	clearedassigned_role_permissions bool
+	push_settings                    map[uint]struct{}
+	removedpush_settings             map[uint]struct{}
+	clearedpush_settings             bool
 	done                             bool
 	oldValue                         func(context.Context) (*User, error)
 	predicates                       []predicate.User
@@ -2947,6 +2952,60 @@ func (m *UserMutation) ResetAssignedRolePermissions() {
 	m.removedassigned_role_permissions = nil
 }
 
+// AddPushSettingIDs adds the "push_settings" edge to the UserPushSetting entity by ids.
+func (m *UserMutation) AddPushSettingIDs(ids ...uint) {
+	if m.push_settings == nil {
+		m.push_settings = make(map[uint]struct{})
+	}
+	for i := range ids {
+		m.push_settings[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPushSettings clears the "push_settings" edge to the UserPushSetting entity.
+func (m *UserMutation) ClearPushSettings() {
+	m.clearedpush_settings = true
+}
+
+// PushSettingsCleared reports if the "push_settings" edge to the UserPushSetting entity was cleared.
+func (m *UserMutation) PushSettingsCleared() bool {
+	return m.clearedpush_settings
+}
+
+// RemovePushSettingIDs removes the "push_settings" edge to the UserPushSetting entity by IDs.
+func (m *UserMutation) RemovePushSettingIDs(ids ...uint) {
+	if m.removedpush_settings == nil {
+		m.removedpush_settings = make(map[uint]struct{})
+	}
+	for i := range ids {
+		delete(m.push_settings, ids[i])
+		m.removedpush_settings[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPushSettings returns the removed IDs of the "push_settings" edge to the UserPushSetting entity.
+func (m *UserMutation) RemovedPushSettingsIDs() (ids []uint) {
+	for id := range m.removedpush_settings {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PushSettingsIDs returns the "push_settings" edge IDs in the mutation.
+func (m *UserMutation) PushSettingsIDs() (ids []uint) {
+	for id := range m.push_settings {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPushSettings resets all changes to the "push_settings" edge.
+func (m *UserMutation) ResetPushSettings() {
+	m.push_settings = nil
+	m.clearedpush_settings = false
+	m.removedpush_settings = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -3214,7 +3273,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.user_roles != nil {
 		edges = append(edges, user.EdgeUserRoles)
 	}
@@ -3223,6 +3282,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.assigned_role_permissions != nil {
 		edges = append(edges, user.EdgeAssignedRolePermissions)
+	}
+	if m.push_settings != nil {
+		edges = append(edges, user.EdgePushSettings)
 	}
 	return edges
 }
@@ -3249,13 +3311,19 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePushSettings:
+		ids := make([]ent.Value, 0, len(m.push_settings))
+		for id := range m.push_settings {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removeduser_roles != nil {
 		edges = append(edges, user.EdgeUserRoles)
 	}
@@ -3264,6 +3332,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedassigned_role_permissions != nil {
 		edges = append(edges, user.EdgeAssignedRolePermissions)
+	}
+	if m.removedpush_settings != nil {
+		edges = append(edges, user.EdgePushSettings)
 	}
 	return edges
 }
@@ -3290,13 +3361,19 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePushSettings:
+		ids := make([]ent.Value, 0, len(m.removedpush_settings))
+		for id := range m.removedpush_settings {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.cleareduser_roles {
 		edges = append(edges, user.EdgeUserRoles)
 	}
@@ -3305,6 +3382,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedassigned_role_permissions {
 		edges = append(edges, user.EdgeAssignedRolePermissions)
+	}
+	if m.clearedpush_settings {
+		edges = append(edges, user.EdgePushSettings)
 	}
 	return edges
 }
@@ -3319,6 +3399,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedassigned_user_roles
 	case user.EdgeAssignedRolePermissions:
 		return m.clearedassigned_role_permissions
+	case user.EdgePushSettings:
+		return m.clearedpush_settings
 	}
 	return false
 }
@@ -3344,8 +3426,819 @@ func (m *UserMutation) ResetEdge(name string) error {
 	case user.EdgeAssignedRolePermissions:
 		m.ResetAssignedRolePermissions()
 		return nil
+	case user.EdgePushSettings:
+		m.ResetPushSettings()
+		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)
+}
+
+// UserPushSettingMutation represents an operation that mutates the UserPushSetting nodes in the graph.
+type UserPushSettingMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uint
+	provider      *userpushsetting.Provider
+	enabled       *bool
+	device_id     *string
+	device_name   *string
+	settings      *map[string]interface{}
+	created_at    *time.Time
+	updated_at    *time.Time
+	clearedFields map[string]struct{}
+	user          *uint
+	cleareduser   bool
+	done          bool
+	oldValue      func(context.Context) (*UserPushSetting, error)
+	predicates    []predicate.UserPushSetting
+}
+
+var _ ent.Mutation = (*UserPushSettingMutation)(nil)
+
+// userpushsettingOption allows management of the mutation configuration using functional options.
+type userpushsettingOption func(*UserPushSettingMutation)
+
+// newUserPushSettingMutation creates new mutation for the UserPushSetting entity.
+func newUserPushSettingMutation(c config, op Op, opts ...userpushsettingOption) *UserPushSettingMutation {
+	m := &UserPushSettingMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUserPushSetting,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUserPushSettingID sets the ID field of the mutation.
+func withUserPushSettingID(id uint) userpushsettingOption {
+	return func(m *UserPushSettingMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UserPushSetting
+		)
+		m.oldValue = func(ctx context.Context) (*UserPushSetting, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UserPushSetting.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUserPushSetting sets the old UserPushSetting of the mutation.
+func withUserPushSetting(node *UserPushSetting) userpushsettingOption {
+	return func(m *UserPushSettingMutation) {
+		m.oldValue = func(context.Context) (*UserPushSetting, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UserPushSettingMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UserPushSettingMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of UserPushSetting entities.
+func (m *UserPushSettingMutation) SetID(id uint) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UserPushSettingMutation) ID() (id uint, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UserPushSettingMutation) IDs(ctx context.Context) ([]uint, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UserPushSetting.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUserID sets the "user_id" field.
+func (m *UserPushSettingMutation) SetUserID(u uint) {
+	m.user = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *UserPushSettingMutation) UserID() (r uint, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldUserID(ctx context.Context) (v uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *UserPushSettingMutation) ResetUserID() {
+	m.user = nil
+}
+
+// SetProvider sets the "provider" field.
+func (m *UserPushSettingMutation) SetProvider(u userpushsetting.Provider) {
+	m.provider = &u
+}
+
+// Provider returns the value of the "provider" field in the mutation.
+func (m *UserPushSettingMutation) Provider() (r userpushsetting.Provider, exists bool) {
+	v := m.provider
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProvider returns the old "provider" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldProvider(ctx context.Context) (v userpushsetting.Provider, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProvider is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProvider requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProvider: %w", err)
+	}
+	return oldValue.Provider, nil
+}
+
+// ResetProvider resets all changes to the "provider" field.
+func (m *UserPushSettingMutation) ResetProvider() {
+	m.provider = nil
+}
+
+// SetEnabled sets the "enabled" field.
+func (m *UserPushSettingMutation) SetEnabled(b bool) {
+	m.enabled = &b
+}
+
+// Enabled returns the value of the "enabled" field in the mutation.
+func (m *UserPushSettingMutation) Enabled() (r bool, exists bool) {
+	v := m.enabled
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEnabled returns the old "enabled" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldEnabled(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEnabled is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEnabled requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEnabled: %w", err)
+	}
+	return oldValue.Enabled, nil
+}
+
+// ResetEnabled resets all changes to the "enabled" field.
+func (m *UserPushSettingMutation) ResetEnabled() {
+	m.enabled = nil
+}
+
+// SetDeviceID sets the "device_id" field.
+func (m *UserPushSettingMutation) SetDeviceID(s string) {
+	m.device_id = &s
+}
+
+// DeviceID returns the value of the "device_id" field in the mutation.
+func (m *UserPushSettingMutation) DeviceID() (r string, exists bool) {
+	v := m.device_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeviceID returns the old "device_id" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldDeviceID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeviceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeviceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeviceID: %w", err)
+	}
+	return oldValue.DeviceID, nil
+}
+
+// ResetDeviceID resets all changes to the "device_id" field.
+func (m *UserPushSettingMutation) ResetDeviceID() {
+	m.device_id = nil
+}
+
+// SetDeviceName sets the "device_name" field.
+func (m *UserPushSettingMutation) SetDeviceName(s string) {
+	m.device_name = &s
+}
+
+// DeviceName returns the value of the "device_name" field in the mutation.
+func (m *UserPushSettingMutation) DeviceName() (r string, exists bool) {
+	v := m.device_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeviceName returns the old "device_name" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldDeviceName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeviceName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeviceName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeviceName: %w", err)
+	}
+	return oldValue.DeviceName, nil
+}
+
+// ClearDeviceName clears the value of the "device_name" field.
+func (m *UserPushSettingMutation) ClearDeviceName() {
+	m.device_name = nil
+	m.clearedFields[userpushsetting.FieldDeviceName] = struct{}{}
+}
+
+// DeviceNameCleared returns if the "device_name" field was cleared in this mutation.
+func (m *UserPushSettingMutation) DeviceNameCleared() bool {
+	_, ok := m.clearedFields[userpushsetting.FieldDeviceName]
+	return ok
+}
+
+// ResetDeviceName resets all changes to the "device_name" field.
+func (m *UserPushSettingMutation) ResetDeviceName() {
+	m.device_name = nil
+	delete(m.clearedFields, userpushsetting.FieldDeviceName)
+}
+
+// SetSettings sets the "settings" field.
+func (m *UserPushSettingMutation) SetSettings(value map[string]interface{}) {
+	m.settings = &value
+}
+
+// Settings returns the value of the "settings" field in the mutation.
+func (m *UserPushSettingMutation) Settings() (r map[string]interface{}, exists bool) {
+	v := m.settings
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSettings returns the old "settings" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldSettings(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSettings is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSettings requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSettings: %w", err)
+	}
+	return oldValue.Settings, nil
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (m *UserPushSettingMutation) ClearSettings() {
+	m.settings = nil
+	m.clearedFields[userpushsetting.FieldSettings] = struct{}{}
+}
+
+// SettingsCleared returns if the "settings" field was cleared in this mutation.
+func (m *UserPushSettingMutation) SettingsCleared() bool {
+	_, ok := m.clearedFields[userpushsetting.FieldSettings]
+	return ok
+}
+
+// ResetSettings resets all changes to the "settings" field.
+func (m *UserPushSettingMutation) ResetSettings() {
+	m.settings = nil
+	delete(m.clearedFields, userpushsetting.FieldSettings)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UserPushSettingMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UserPushSettingMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UserPushSettingMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UserPushSettingMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UserPushSettingMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UserPushSetting entity.
+// If the UserPushSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserPushSettingMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UserPushSettingMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *UserPushSettingMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[userpushsetting.FieldUserID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *UserPushSettingMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *UserPushSettingMutation) UserIDs() (ids []uint) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *UserPushSettingMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// Where appends a list predicates to the UserPushSettingMutation builder.
+func (m *UserPushSettingMutation) Where(ps ...predicate.UserPushSetting) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UserPushSettingMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UserPushSettingMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UserPushSetting, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UserPushSettingMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UserPushSettingMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UserPushSetting).
+func (m *UserPushSettingMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UserPushSettingMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.user != nil {
+		fields = append(fields, userpushsetting.FieldUserID)
+	}
+	if m.provider != nil {
+		fields = append(fields, userpushsetting.FieldProvider)
+	}
+	if m.enabled != nil {
+		fields = append(fields, userpushsetting.FieldEnabled)
+	}
+	if m.device_id != nil {
+		fields = append(fields, userpushsetting.FieldDeviceID)
+	}
+	if m.device_name != nil {
+		fields = append(fields, userpushsetting.FieldDeviceName)
+	}
+	if m.settings != nil {
+		fields = append(fields, userpushsetting.FieldSettings)
+	}
+	if m.created_at != nil {
+		fields = append(fields, userpushsetting.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, userpushsetting.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UserPushSettingMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case userpushsetting.FieldUserID:
+		return m.UserID()
+	case userpushsetting.FieldProvider:
+		return m.Provider()
+	case userpushsetting.FieldEnabled:
+		return m.Enabled()
+	case userpushsetting.FieldDeviceID:
+		return m.DeviceID()
+	case userpushsetting.FieldDeviceName:
+		return m.DeviceName()
+	case userpushsetting.FieldSettings:
+		return m.Settings()
+	case userpushsetting.FieldCreatedAt:
+		return m.CreatedAt()
+	case userpushsetting.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UserPushSettingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case userpushsetting.FieldUserID:
+		return m.OldUserID(ctx)
+	case userpushsetting.FieldProvider:
+		return m.OldProvider(ctx)
+	case userpushsetting.FieldEnabled:
+		return m.OldEnabled(ctx)
+	case userpushsetting.FieldDeviceID:
+		return m.OldDeviceID(ctx)
+	case userpushsetting.FieldDeviceName:
+		return m.OldDeviceName(ctx)
+	case userpushsetting.FieldSettings:
+		return m.OldSettings(ctx)
+	case userpushsetting.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case userpushsetting.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown UserPushSetting field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UserPushSettingMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case userpushsetting.FieldUserID:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case userpushsetting.FieldProvider:
+		v, ok := value.(userpushsetting.Provider)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProvider(v)
+		return nil
+	case userpushsetting.FieldEnabled:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEnabled(v)
+		return nil
+	case userpushsetting.FieldDeviceID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeviceID(v)
+		return nil
+	case userpushsetting.FieldDeviceName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeviceName(v)
+		return nil
+	case userpushsetting.FieldSettings:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSettings(v)
+		return nil
+	case userpushsetting.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case userpushsetting.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UserPushSetting field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UserPushSettingMutation) AddedFields() []string {
+	var fields []string
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UserPushSettingMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UserPushSettingMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown UserPushSetting numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UserPushSettingMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(userpushsetting.FieldDeviceName) {
+		fields = append(fields, userpushsetting.FieldDeviceName)
+	}
+	if m.FieldCleared(userpushsetting.FieldSettings) {
+		fields = append(fields, userpushsetting.FieldSettings)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UserPushSettingMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UserPushSettingMutation) ClearField(name string) error {
+	switch name {
+	case userpushsetting.FieldDeviceName:
+		m.ClearDeviceName()
+		return nil
+	case userpushsetting.FieldSettings:
+		m.ClearSettings()
+		return nil
+	}
+	return fmt.Errorf("unknown UserPushSetting nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UserPushSettingMutation) ResetField(name string) error {
+	switch name {
+	case userpushsetting.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case userpushsetting.FieldProvider:
+		m.ResetProvider()
+		return nil
+	case userpushsetting.FieldEnabled:
+		m.ResetEnabled()
+		return nil
+	case userpushsetting.FieldDeviceID:
+		m.ResetDeviceID()
+		return nil
+	case userpushsetting.FieldDeviceName:
+		m.ResetDeviceName()
+		return nil
+	case userpushsetting.FieldSettings:
+		m.ResetSettings()
+		return nil
+	case userpushsetting.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case userpushsetting.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown UserPushSetting field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UserPushSettingMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.user != nil {
+		edges = append(edges, userpushsetting.EdgeUser)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UserPushSettingMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case userpushsetting.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UserPushSettingMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UserPushSettingMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UserPushSettingMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.cleareduser {
+		edges = append(edges, userpushsetting.EdgeUser)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UserPushSettingMutation) EdgeCleared(name string) bool {
+	switch name {
+	case userpushsetting.EdgeUser:
+		return m.cleareduser
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UserPushSettingMutation) ClearEdge(name string) error {
+	switch name {
+	case userpushsetting.EdgeUser:
+		m.ClearUser()
+		return nil
+	}
+	return fmt.Errorf("unknown UserPushSetting unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UserPushSettingMutation) ResetEdge(name string) error {
+	switch name {
+	case userpushsetting.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
+	return fmt.Errorf("unknown UserPushSetting edge %s", name)
 }
 
 // UserRoleMutation represents an operation that mutates the UserRole nodes in the graph.

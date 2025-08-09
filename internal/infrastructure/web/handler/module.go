@@ -10,5 +10,7 @@ var HandlerModule = fx.Options(
 		NewRoleHandler,
 		NewPermissionHandler,
 		NewLiveStreamHandler,
+		NewUserPushSettingHandler,
+		NewUserPushHandler,
 	),
 )

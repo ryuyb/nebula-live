@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"nebula-live/ent/rolepermission"
 	"nebula-live/ent/user"
+	"nebula-live/ent/userpushsetting"
 	"nebula-live/ent/userrole"
 	"time"
 
@@ -159,6 +160,21 @@ func (_c *UserCreate) AddAssignedRolePermissions(v ...*RolePermission) *UserCrea
 		ids[i] = v[i].ID
 	}
 	return _c.AddAssignedRolePermissionIDs(ids...)
+}
+
+// AddPushSettingIDs adds the "push_settings" edge to the UserPushSetting entity by IDs.
+func (_c *UserCreate) AddPushSettingIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddPushSettingIDs(ids...)
+	return _c
+}
+
+// AddPushSettings adds the "push_settings" edges to the UserPushSetting entity.
+func (_c *UserCreate) AddPushSettings(v ...*UserPushSetting) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddPushSettingIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -365,6 +381,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(rolepermission.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.PushSettingsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   user.PushSettingsTable,
+			Columns: []string{user.PushSettingsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userpushsetting.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

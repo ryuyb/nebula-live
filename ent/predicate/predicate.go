@@ -18,5 +18,8 @@ type RolePermission func(*sql.Selector)
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 
+// UserPushSetting is the predicate function for userpushsetting builders.
+type UserPushSetting func(*sql.Selector)
+
 // UserRole is the predicate function for userrole builders.
 type UserRole func(*sql.Selector)

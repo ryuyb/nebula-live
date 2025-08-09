@@ -8,6 +8,7 @@ import (
 	"nebula-live/ent/rolepermission"
 	"nebula-live/ent/schema"
 	"nebula-live/ent/user"
+	"nebula-live/ent/userpushsetting"
 	"nebula-live/ent/userrole"
 	"time"
 )
@@ -230,6 +231,30 @@ func init() {
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
+	userpushsettingFields := schema.UserPushSetting{}.Fields()
+	_ = userpushsettingFields
+	// userpushsettingDescEnabled is the schema descriptor for enabled field.
+	userpushsettingDescEnabled := userpushsettingFields[3].Descriptor()
+	// userpushsetting.DefaultEnabled holds the default value on creation for the enabled field.
+	userpushsetting.DefaultEnabled = userpushsettingDescEnabled.Default.(bool)
+	// userpushsettingDescDeviceID is the schema descriptor for device_id field.
+	userpushsettingDescDeviceID := userpushsettingFields[4].Descriptor()
+	// userpushsetting.DeviceIDValidator is a validator for the "device_id" field. It is called by the builders before save.
+	userpushsetting.DeviceIDValidator = userpushsettingDescDeviceID.Validators[0].(func(string) error)
+	// userpushsettingDescDeviceName is the schema descriptor for device_name field.
+	userpushsettingDescDeviceName := userpushsettingFields[5].Descriptor()
+	// userpushsetting.DeviceNameValidator is a validator for the "device_name" field. It is called by the builders before save.
+	userpushsetting.DeviceNameValidator = userpushsettingDescDeviceName.Validators[0].(func(string) error)
+	// userpushsettingDescCreatedAt is the schema descriptor for created_at field.
+	userpushsettingDescCreatedAt := userpushsettingFields[7].Descriptor()
+	// userpushsetting.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userpushsetting.DefaultCreatedAt = userpushsettingDescCreatedAt.Default.(func() time.Time)
+	// userpushsettingDescUpdatedAt is the schema descriptor for updated_at field.
+	userpushsettingDescUpdatedAt := userpushsettingFields[8].Descriptor()
+	// userpushsetting.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userpushsetting.DefaultUpdatedAt = userpushsettingDescUpdatedAt.Default.(func() time.Time)
+	// userpushsetting.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userpushsetting.UpdateDefaultUpdatedAt = userpushsettingDescUpdatedAt.UpdateDefault.(func() time.Time)
 	userroleFields := schema.UserRole{}.Fields()
 	_ = userroleFields
 	// userroleDescAssignedAt is the schema descriptor for assigned_at field.

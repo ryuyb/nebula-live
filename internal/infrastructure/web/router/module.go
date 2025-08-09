@@ -21,6 +21,8 @@ var RouterModule = fx.Options(
 	fx.Provide(asRoute(NewRoleRouter)),
 	fx.Provide(asRoute(NewPermissionRouter)),
 	fx.Provide(asRoute(NewLiveStreamRouter)),
+	fx.Provide(asRoute(NewUserPushSettingRouter)),
+	fx.Provide(asRoute(NewUserPushRouter)),
 
 	// 提供路由注册器
 	fx.Provide(NewRouterRegistry),

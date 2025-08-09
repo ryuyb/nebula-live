@@ -10,5 +10,6 @@ var PersistenceModule = fx.Options(
 		NewPermissionRepository,
 		NewUserRoleRepository,
 		NewRolePermissionRepository,
+		NewUserPushSettingRepository,
 	),
 )

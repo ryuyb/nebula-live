@@ -192,6 +192,64 @@ var (
 			},
 		},
 	}
+	// UserPushSettingsColumns holds the columns for the "user_push_settings" table.
+	UserPushSettingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"bark"}},
+		{Name: "enabled", Type: field.TypeBool, Default: false},
+		{Name: "device_id", Type: field.TypeString},
+		{Name: "device_name", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "settings", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeUint},
+	}
+	// UserPushSettingsTable holds the schema information for the "user_push_settings" table.
+	UserPushSettingsTable = &schema.Table{
+		Name:       "user_push_settings",
+		Columns:    UserPushSettingsColumns,
+		PrimaryKey: []*schema.Column{UserPushSettingsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_push_settings_users_user",
+				Columns:    []*schema.Column{UserPushSettingsColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userpushsetting_user_id_provider",
+				Unique:  false,
+				Columns: []*schema.Column{UserPushSettingsColumns[8], UserPushSettingsColumns[1]},
+			},
+			{
+				Name:    "userpushsetting_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserPushSettingsColumns[8]},
+			},
+			{
+				Name:    "userpushsetting_provider",
+				Unique:  false,
+				Columns: []*schema.Column{UserPushSettingsColumns[1]},
+			},
+			{
+				Name:    "userpushsetting_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{UserPushSettingsColumns[2]},
+			},
+			{
+				Name:    "userpushsetting_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{UserPushSettingsColumns[6]},
+			},
+			{
+				Name:    "userpushsetting_provider_device_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserPushSettingsColumns[1], UserPushSettingsColumns[3]},
+			},
+		},
+	}
 	// UserRolesColumns holds the columns for the "user_roles" table.
 	UserRolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true},
@@ -259,6 +317,7 @@ var (
 		RolesTable,
 		RolePermissionsTable,
 		UsersTable,
+		UserPushSettingsTable,
 		UserRolesTable,
 	}
 )
@@ -267,6 +326,7 @@ func init() {
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	RolePermissionsTable.ForeignKeys[2].RefTable = UsersTable
+	UserPushSettingsTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
 	UserRolesTable.ForeignKeys[2].RefTable = UsersTable

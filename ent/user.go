@@ -47,9 +47,11 @@ type UserEdges struct {
 	AssignedUserRoles []*UserRole `json:"assigned_user_roles,omitempty"`
 	// AssignedRolePermissions holds the value of the assigned_role_permissions edge.
 	AssignedRolePermissions []*RolePermission `json:"assigned_role_permissions,omitempty"`
+	// PushSettings holds the value of the push_settings edge.
+	PushSettings []*UserPushSetting `json:"push_settings,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // UserRolesOrErr returns the UserRoles value or an error if the edge
@@ -77,6 +79,15 @@ func (e UserEdges) AssignedRolePermissionsOrErr() ([]*RolePermission, error) {
 		return e.AssignedRolePermissions, nil
 	}
 	return nil, &NotLoadedError{edge: "assigned_role_permissions"}
+}
+
+// PushSettingsOrErr returns the PushSettings value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PushSettingsOrErr() ([]*UserPushSetting, error) {
+	if e.loadedTypes[3] {
+		return e.PushSettings, nil
+	}
+	return nil, &NotLoadedError{edge: "push_settings"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -185,6 +196,11 @@ func (_m *User) QueryAssignedUserRoles() *UserRoleQuery {
 // QueryAssignedRolePermissions queries the "assigned_role_permissions" edge of the User entity.
 func (_m *User) QueryAssignedRolePermissions() *RolePermissionQuery {
 	return NewUserClient(_m.config).QueryAssignedRolePermissions(_m)
+}
+
+// QueryPushSettings queries the "push_settings" edge of the User entity.
+func (_m *User) QueryPushSettings() *UserPushSettingQuery {
+	return NewUserClient(_m.config).QueryPushSettings(_m)
 }
 
 // Update returns a builder for updating this User.

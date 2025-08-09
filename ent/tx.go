@@ -20,6 +20,8 @@ type Tx struct {
 	RolePermission *RolePermissionClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserPushSetting is the client for interacting with the UserPushSetting builders.
+	UserPushSetting *UserPushSettingClient
 	// UserRole is the client for interacting with the UserRole builders.
 	UserRole *UserRoleClient
 
@@ -157,6 +159,7 @@ func (tx *Tx) init() {
 	tx.Role = NewRoleClient(tx.config)
 	tx.RolePermission = NewRolePermissionClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserPushSetting = NewUserPushSettingClient(tx.config)
 	tx.UserRole = NewUserRoleClient(tx.config)
 }
 

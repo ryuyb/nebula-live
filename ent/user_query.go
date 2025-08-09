@@ -10,6 +10,7 @@ import (
 	"nebula-live/ent/predicate"
 	"nebula-live/ent/rolepermission"
 	"nebula-live/ent/user"
+	"nebula-live/ent/userpushsetting"
 	"nebula-live/ent/userrole"
 
 	"entgo.io/ent"
@@ -28,6 +29,7 @@ type UserQuery struct {
 	withUserRoles               *UserRoleQuery
 	withAssignedUserRoles       *UserRoleQuery
 	withAssignedRolePermissions *RolePermissionQuery
+	withPushSettings            *UserPushSettingQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -123,6 +125,28 @@ func (_q *UserQuery) QueryAssignedRolePermissions() *RolePermissionQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(rolepermission.Table, rolepermission.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, user.AssignedRolePermissionsTable, user.AssignedRolePermissionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPushSettings chains the current query on the "push_settings" edge.
+func (_q *UserQuery) QueryPushSettings() *UserPushSettingQuery {
+	query := (&UserPushSettingClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(userpushsetting.Table, userpushsetting.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, user.PushSettingsTable, user.PushSettingsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -325,6 +349,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withUserRoles:               _q.withUserRoles.Clone(),
 		withAssignedUserRoles:       _q.withAssignedUserRoles.Clone(),
 		withAssignedRolePermissions: _q.withAssignedRolePermissions.Clone(),
+		withPushSettings:            _q.withPushSettings.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -361,6 +386,17 @@ func (_q *UserQuery) WithAssignedRolePermissions(opts ...func(*RolePermissionQue
 		opt(query)
 	}
 	_q.withAssignedRolePermissions = query
+	return _q
+}
+
+// WithPushSettings tells the query-builder to eager-load the nodes that are connected to
+// the "push_settings" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithPushSettings(opts ...func(*UserPushSettingQuery)) *UserQuery {
+	query := (&UserPushSettingClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPushSettings = query
 	return _q
 }
 
@@ -442,10 +478,11 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withUserRoles != nil,
 			_q.withAssignedUserRoles != nil,
 			_q.withAssignedRolePermissions != nil,
+			_q.withPushSettings != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -486,6 +523,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			func(n *User, e *RolePermission) {
 				n.Edges.AssignedRolePermissions = append(n.Edges.AssignedRolePermissions, e)
 			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withPushSettings; query != nil {
+		if err := _q.loadPushSettings(ctx, query, nodes,
+			func(n *User) { n.Edges.PushSettings = []*UserPushSetting{} },
+			func(n *User, e *UserPushSetting) { n.Edges.PushSettings = append(n.Edges.PushSettings, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -577,6 +621,36 @@ func (_q *UserQuery) loadAssignedRolePermissions(ctx context.Context, query *Rol
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "assigned_by" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadPushSettings(ctx context.Context, query *UserPushSettingQuery, nodes []*User, init func(*User), assign func(*User, *UserPushSetting)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uint]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userpushsetting.FieldUserID)
+	}
+	query.Where(predicate.UserPushSetting(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.PushSettingsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

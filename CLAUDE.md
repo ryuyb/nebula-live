@@ -62,7 +62,8 @@ Nebula-live is a modern backend API service built with Go 1.22+, following Domai
 │   │   ├── repository/  # Repository interfaces
 │   │   └── service/     # Domain services
 │   ├── pkg/             # Internal shared packages
-│   │   └── livestream/  # Live streaming platform integrations
+│   │   ├── livestream/  # Live streaming platform integrations
+│   │   └── push/        # Push notification system integrations
 │   └── infrastructure/  # Infrastructure layer
 │       ├── config/      # Configuration management
 │       ├── logger/      # Logging setup
@@ -106,6 +107,7 @@ jwt:
   refresh_token_ttl: "168h"   # Refresh token expiration time (7 days)
   issuer: "nebula-live"       # JWT issuer
 ```
+
 
 ### Configuration Files
 - `configs/config.yaml` - Default configuration
@@ -192,6 +194,147 @@ jwt:
 - **404 Not Found**: Room does not exist
 - **400 Bad Request**: Unsupported platform or invalid room ID
 - **500 Internal Server Error**: Service unavailable or API error
+
+### Push Notifications (User-Level Configuration)
+⚠️ **All push notification endpoints require JWT authentication and use user-specific device settings**
+
+#### User Push Settings Management
+- `GET /api/v1/push-settings/providers` - Get supported push providers (public endpoint)
+- `POST /api/v1/push-settings/validate-device` - Validate device ID availability (public endpoint)
+- `POST /api/v1/push-settings` - Create push device setting (requires authentication)
+- `GET /api/v1/push-settings` - Get user's push settings (supports ?provider=bark and pagination, requires authentication)
+- `GET /api/v1/push-settings/:id` - Get specific push setting (requires authentication)
+- `PUT /api/v1/push-settings/:id` - Update push setting (requires authentication)
+- `DELETE /api/v1/push-settings/:id` - Delete push setting (requires authentication)
+- `POST /api/v1/push-settings/:id/enable` - Enable push setting (requires authentication)
+- `POST /api/v1/push-settings/:id/disable` - Disable push setting (requires authentication)
+
+#### User Push Operations  
+- `POST /api/v1/push/my-devices` - Send notification to all user's enabled devices
+- `POST /api/v1/push/my-devices/:provider` - Send notification to user's devices for specific provider
+- `POST /api/v1/push/test` - Test user's push settings with a test message
+
+#### Supported Push Providers Response
+```json
+{
+  "providers": [
+    {
+      "name": "bark",
+      "display_name": "Bark", 
+      "description": "iOS Bark push notification service",
+      "platform": "ios",
+      "settings": {
+        "base_url": "Custom Bark server URL (optional)",
+        "sound": "Notification sound (optional)",
+        "icon": "Notification icon URL (optional)",
+        "group": "Notification group (optional)",
+        "level": "Notification level: active, critical, timeSensitive, passive (optional)",
+        "auto_copy": "Auto copy message to clipboard (optional)",
+        "call": "Ring for 30 seconds (optional)"
+      }
+    }
+  ],
+  "total": 1
+}
+```
+
+#### Supported Push Providers
+- **bark**: iOS Bark push notification service
+
+#### Create Push Setting Request
+```json
+{
+  "provider": "bark",
+  "device_id": "ynJ5Ft4atkMkWeo2PAvFhF",
+  "device_name": "My iPhone",
+  "settings": {
+    "base_url": "https://api.day.app",
+    "sound": "default",
+    "icon": "https://example.com/icon.png",
+    "group": "MyApp"
+  }
+}
+```
+
+#### Push Setting Response
+```json
+{
+  "id": 1,
+  "user_id": 123,
+  "provider": "bark",
+  "enabled": true,
+  "device_id": "ynJ5Ft4atkMkWeo2PAvFhF",
+  "device_name": "My iPhone",
+  "settings": {
+    "base_url": "https://api.day.app",
+    "sound": "default",
+    "icon": "https://example.com/icon.png",
+    "group": "MyApp"
+  },
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
+}
+```
+
+#### Push Notification Request (User Context)
+```json
+{
+  "title": "Notification Title",
+  "body": "Notification content",
+  "url": "https://example.com",
+  "sound": "default",
+  "icon": "https://example.com/icon.png",
+  "group": "app_notifications",
+  "level": "active",
+  "call": false,
+  "auto_copy": false
+}
+```
+
+#### User Push Result Response
+```json
+{
+  "user_id": 123,
+  "provider": "bark",
+  "total_devices": 2,
+  "success_count": 2,
+  "failed_count": 0,
+  "responses": [
+    {
+      "success": true,
+      "message_id": "1642608000",
+      "provider": "bark",
+      "error": ""
+    }
+  ]
+}
+```
+
+#### Push Notification Levels
+- **critical**: Critical alerts that bypass Do Not Disturb
+- **active**: Default notification level (default)
+- **timeSensitive**: Time-sensitive notifications
+- **passive**: Low-priority notifications
+
+#### User-Level Push Architecture
+- **User-Specific**: Each user manages their own push notification devices and settings
+- **Provider-Specific Settings**: Users can configure provider-specific options (e.g., Bark server URL, sound, icon)
+- **Multiple Devices**: Users can register multiple devices per provider
+- **Enable/Disable Control**: Users can enable/disable individual devices without deletion
+- **JSON Settings Storage**: Provider-specific configurations stored as JSON for flexibility
+
+**Usage Examples:**
+- Register device: `POST /api/v1/push-settings`
+- Send to my Bark devices: `POST /api/v1/push/my-devices/bark`
+- Send to all my devices: `POST /api/v1/push/my-devices`
+- Test my settings: `POST /api/v1/push/test`
+
+#### Push Notification Error Responses
+- **400 Bad Request**: Invalid request body, missing required fields, or validation errors
+- **401 Unauthorized**: Missing or invalid authentication token
+- **404 Not Found**: Push setting not found or user has no devices for provider
+- **409 Conflict**: Device ID already exists for this provider
+- **500 Internal Server Error**: Failed to send notification or database error
 
 ### Health Check
 - `GET /health` - Application health status
@@ -396,6 +539,7 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 - **auth**: Authentication and authorization changes
 - **security**: Security-related improvements
 - **livestream**: Live streaming platform integrations
+- **push**: Push notification system changes
 
 ### Commit Examples
 ```bash
@@ -404,8 +548,10 @@ feat(auth): implement JWT token system with refresh tokens
 feat(security): add Argon2id password hashing
 feat(middleware): add JWT authentication middleware
 feat(livestream): add douyu live streaming platform integration
-feat(livestream): add bilibili live streaming platform integration  
+feat(livestream): add bilibili live streaming platform integration
+feat(push): add bark push notification system integration
 fix(livestream): handle room not found error for douyu API
+fix(push): handle bark API error responses correctly
 fix(db): resolve SQLite connection timeout
 docs: update README with Docker instructions
 refactor(domain): extract user validation to service

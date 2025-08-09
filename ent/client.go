@@ -15,6 +15,7 @@ import (
 	"nebula-live/ent/role"
 	"nebula-live/ent/rolepermission"
 	"nebula-live/ent/user"
+	"nebula-live/ent/userpushsetting"
 	"nebula-live/ent/userrole"
 
 	"entgo.io/ent"
@@ -36,6 +37,8 @@ type Client struct {
 	RolePermission *RolePermissionClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserPushSetting is the client for interacting with the UserPushSetting builders.
+	UserPushSetting *UserPushSettingClient
 	// UserRole is the client for interacting with the UserRole builders.
 	UserRole *UserRoleClient
 }
@@ -53,6 +56,7 @@ func (c *Client) init() {
 	c.Role = NewRoleClient(c.config)
 	c.RolePermission = NewRolePermissionClient(c.config)
 	c.User = NewUserClient(c.config)
+	c.UserPushSetting = NewUserPushSettingClient(c.config)
 	c.UserRole = NewUserRoleClient(c.config)
 }
 
@@ -144,13 +148,14 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:            ctx,
-		config:         cfg,
-		Permission:     NewPermissionClient(cfg),
-		Role:           NewRoleClient(cfg),
-		RolePermission: NewRolePermissionClient(cfg),
-		User:           NewUserClient(cfg),
-		UserRole:       NewUserRoleClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		Permission:      NewPermissionClient(cfg),
+		Role:            NewRoleClient(cfg),
+		RolePermission:  NewRolePermissionClient(cfg),
+		User:            NewUserClient(cfg),
+		UserPushSetting: NewUserPushSettingClient(cfg),
+		UserRole:        NewUserRoleClient(cfg),
 	}, nil
 }
 
@@ -168,13 +173,14 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:            ctx,
-		config:         cfg,
-		Permission:     NewPermissionClient(cfg),
-		Role:           NewRoleClient(cfg),
-		RolePermission: NewRolePermissionClient(cfg),
-		User:           NewUserClient(cfg),
-		UserRole:       NewUserRoleClient(cfg),
+		ctx:             ctx,
+		config:          cfg,
+		Permission:      NewPermissionClient(cfg),
+		Role:            NewRoleClient(cfg),
+		RolePermission:  NewRolePermissionClient(cfg),
+		User:            NewUserClient(cfg),
+		UserPushSetting: NewUserPushSettingClient(cfg),
+		UserRole:        NewUserRoleClient(cfg),
 	}, nil
 }
 
@@ -203,21 +209,21 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Permission.Use(hooks...)
-	c.Role.Use(hooks...)
-	c.RolePermission.Use(hooks...)
-	c.User.Use(hooks...)
-	c.UserRole.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Permission, c.Role, c.RolePermission, c.User, c.UserPushSetting, c.UserRole,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Permission.Intercept(interceptors...)
-	c.Role.Intercept(interceptors...)
-	c.RolePermission.Intercept(interceptors...)
-	c.User.Intercept(interceptors...)
-	c.UserRole.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Permission, c.Role, c.RolePermission, c.User, c.UserPushSetting, c.UserRole,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -231,6 +237,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.RolePermission.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
+	case *UserPushSettingMutation:
+		return c.UserPushSetting.mutate(ctx, m)
 	case *UserRoleMutation:
 		return c.UserRole.mutate(ctx, m)
 	default:
@@ -889,6 +897,22 @@ func (c *UserClient) QueryAssignedRolePermissions(_m *User) *RolePermissionQuery
 	return query
 }
 
+// QueryPushSettings queries the push_settings edge of a User.
+func (c *UserClient) QueryPushSettings(_m *User) *UserPushSettingQuery {
+	query := (&UserPushSettingClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(userpushsetting.Table, userpushsetting.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, user.PushSettingsTable, user.PushSettingsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -911,6 +935,155 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 		return (&UserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown User mutation op: %q", m.Op())
+	}
+}
+
+// UserPushSettingClient is a client for the UserPushSetting schema.
+type UserPushSettingClient struct {
+	config
+}
+
+// NewUserPushSettingClient returns a client for the UserPushSetting from the given config.
+func NewUserPushSettingClient(c config) *UserPushSettingClient {
+	return &UserPushSettingClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `userpushsetting.Hooks(f(g(h())))`.
+func (c *UserPushSettingClient) Use(hooks ...Hook) {
+	c.hooks.UserPushSetting = append(c.hooks.UserPushSetting, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `userpushsetting.Intercept(f(g(h())))`.
+func (c *UserPushSettingClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserPushSetting = append(c.inters.UserPushSetting, interceptors...)
+}
+
+// Create returns a builder for creating a UserPushSetting entity.
+func (c *UserPushSettingClient) Create() *UserPushSettingCreate {
+	mutation := newUserPushSettingMutation(c.config, OpCreate)
+	return &UserPushSettingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserPushSetting entities.
+func (c *UserPushSettingClient) CreateBulk(builders ...*UserPushSettingCreate) *UserPushSettingCreateBulk {
+	return &UserPushSettingCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserPushSettingClient) MapCreateBulk(slice any, setFunc func(*UserPushSettingCreate, int)) *UserPushSettingCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserPushSettingCreateBulk{err: fmt.Errorf("calling to UserPushSettingClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserPushSettingCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserPushSettingCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserPushSetting.
+func (c *UserPushSettingClient) Update() *UserPushSettingUpdate {
+	mutation := newUserPushSettingMutation(c.config, OpUpdate)
+	return &UserPushSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserPushSettingClient) UpdateOne(_m *UserPushSetting) *UserPushSettingUpdateOne {
+	mutation := newUserPushSettingMutation(c.config, OpUpdateOne, withUserPushSetting(_m))
+	return &UserPushSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserPushSettingClient) UpdateOneID(id uint) *UserPushSettingUpdateOne {
+	mutation := newUserPushSettingMutation(c.config, OpUpdateOne, withUserPushSettingID(id))
+	return &UserPushSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserPushSetting.
+func (c *UserPushSettingClient) Delete() *UserPushSettingDelete {
+	mutation := newUserPushSettingMutation(c.config, OpDelete)
+	return &UserPushSettingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserPushSettingClient) DeleteOne(_m *UserPushSetting) *UserPushSettingDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserPushSettingClient) DeleteOneID(id uint) *UserPushSettingDeleteOne {
+	builder := c.Delete().Where(userpushsetting.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserPushSettingDeleteOne{builder}
+}
+
+// Query returns a query builder for UserPushSetting.
+func (c *UserPushSettingClient) Query() *UserPushSettingQuery {
+	return &UserPushSettingQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserPushSetting},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserPushSetting entity by its id.
+func (c *UserPushSettingClient) Get(ctx context.Context, id uint) (*UserPushSetting, error) {
+	return c.Query().Where(userpushsetting.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserPushSettingClient) GetX(ctx context.Context, id uint) *UserPushSetting {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a UserPushSetting.
+func (c *UserPushSettingClient) QueryUser(_m *UserPushSetting) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(userpushsetting.Table, userpushsetting.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, userpushsetting.UserTable, userpushsetting.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UserPushSettingClient) Hooks() []Hook {
+	return c.hooks.UserPushSetting
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserPushSettingClient) Interceptors() []Interceptor {
+	return c.inters.UserPushSetting
+}
+
+func (c *UserPushSettingClient) mutate(ctx context.Context, m *UserPushSettingMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserPushSettingCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserPushSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserPushSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserPushSettingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UserPushSetting mutation op: %q", m.Op())
 	}
 }
 
@@ -1098,9 +1271,10 @@ func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Permission, Role, RolePermission, User, UserRole []ent.Hook
+		Permission, Role, RolePermission, User, UserPushSetting, UserRole []ent.Hook
 	}
 	inters struct {
-		Permission, Role, RolePermission, User, UserRole []ent.Interceptor
+		Permission, Role, RolePermission, User, UserPushSetting,
+		UserRole []ent.Interceptor
 	}
 )

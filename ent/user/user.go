@@ -37,6 +37,8 @@ const (
 	EdgeAssignedUserRoles = "assigned_user_roles"
 	// EdgeAssignedRolePermissions holds the string denoting the assigned_role_permissions edge name in mutations.
 	EdgeAssignedRolePermissions = "assigned_role_permissions"
+	// EdgePushSettings holds the string denoting the push_settings edge name in mutations.
+	EdgePushSettings = "push_settings"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// UserRolesTable is the table that holds the user_roles relation/edge.
@@ -60,6 +62,13 @@ const (
 	AssignedRolePermissionsInverseTable = "role_permissions"
 	// AssignedRolePermissionsColumn is the table column denoting the assigned_role_permissions relation/edge.
 	AssignedRolePermissionsColumn = "assigned_by"
+	// PushSettingsTable is the table that holds the push_settings relation/edge.
+	PushSettingsTable = "user_push_settings"
+	// PushSettingsInverseTable is the table name for the UserPushSetting entity.
+	// It exists in this package in order to avoid circular dependency with the "userpushsetting" package.
+	PushSettingsInverseTable = "user_push_settings"
+	// PushSettingsColumn is the table column denoting the push_settings relation/edge.
+	PushSettingsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -220,6 +229,20 @@ func ByAssignedRolePermissions(term sql.OrderTerm, terms ...sql.OrderTerm) Order
 		sqlgraph.OrderByNeighborTerms(s, newAssignedRolePermissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByPushSettingsCount orders the results by push_settings count.
+func ByPushSettingsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPushSettingsStep(), opts...)
+	}
+}
+
+// ByPushSettings orders the results by push_settings terms.
+func ByPushSettings(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPushSettingsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUserRolesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -239,5 +262,12 @@ func newAssignedRolePermissionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AssignedRolePermissionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, true, AssignedRolePermissionsTable, AssignedRolePermissionsColumn),
+	)
+}
+func newPushSettingsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PushSettingsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, PushSettingsTable, PushSettingsColumn),
 	)
 }

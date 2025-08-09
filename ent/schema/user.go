@@ -61,6 +61,9 @@ func (User) Edges() []ent.Edge {
 		// 作为分配者的角色权限关联
 		edge.From("assigned_role_permissions", RolePermission.Type).
 			Ref("assigner"),
+		// 用户的推送设置
+		edge.From("push_settings", UserPushSetting.Type).
+			Ref("user"),
 	}
 }
 
