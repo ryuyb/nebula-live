@@ -173,6 +173,7 @@ jwt:
 
 #### Supported Platforms
 - **douyu**: 斗鱼直播平台
+- **bilibili**: 哔哩哔哩直播平台
 
 #### Stream Status Response
 ```json
@@ -182,6 +183,10 @@ jwt:
   "status": "online"  // "online" | "offline"
 }
 ```
+
+**Usage Examples:**
+- 斗鱼: `GET /api/v1/live-streams/douyu/rooms/534740/status`
+- 哔哩哔哩: `GET /api/v1/live-streams/bilibili/rooms/22816111/status`
 
 #### Error Responses
 - **404 Not Found**: Room does not exist
@@ -399,6 +404,7 @@ feat(auth): implement JWT token system with refresh tokens
 feat(security): add Argon2id password hashing
 feat(middleware): add JWT authentication middleware
 feat(livestream): add douyu live streaming platform integration
+feat(livestream): add bilibili live streaming platform integration  
 fix(livestream): handle room not found error for douyu API
 fix(db): resolve SQLite connection timeout
 docs: update README with Docker instructions
