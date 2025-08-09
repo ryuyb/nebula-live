@@ -11,8 +11,13 @@ server:
   idle_timeout: 120s
 
 database:
-  driver: "sqlite"
-  database: "data/nebula_live.db"  # SQLite数据库文件路径，也可以使用 ":memory:" 表示内存数据库
+  driver: "postgres"
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "password"
+  database: "nebula_live"
+  ssl_mode: "disable"
   max_idle_conns: 10
   max_open_conns: 30
   conn_max_lifetime: 30m

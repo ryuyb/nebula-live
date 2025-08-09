@@ -14,6 +14,11 @@ Nebula-live is a modern backend API service built with Go 1.22+, following Domai
 - **Viper v1.20.0**: Configuration management
 - **Cobra v1.8.1**: CLI framework
 
+### Authentication & Security
+- **JWT v5.3.0**: JSON Web Token authentication with access and refresh tokens
+- **Argon2id**: Secure password hashing algorithm with salt and timing attack protection
+- **Authentication Middleware**: Route-level JWT token validation and user context injection
+
 ### Database Support
 - **PostgreSQL**: Production-ready relational database
 - **SQLite**: Development and lightweight deployments via `modernc.org/sqlite`
@@ -90,6 +95,15 @@ database:
   ssl_mode: "disable"
 ```
 
+### JWT Configuration
+```yaml
+jwt:
+  secret: "your-secret-key-change-this-in-production"
+  access_token_ttl: "15m"     # Access token expiration time
+  refresh_token_ttl: "168h"   # Refresh token expiration time (7 days)
+  issuer: "nebula-live"       # JWT issuer
+```
+
 ### Configuration Files
 - `configs/config.yaml` - Default configuration
 - `configs/config-sqlite.yaml` - SQLite example configuration
@@ -102,17 +116,25 @@ database:
 - **Clean Architecture**: Dependencies point inward toward the domain
 - **Structured Logging**: JSON-formatted logs with proper rotation + global logger for convenience
 - **Unified Error Handling**: APIError for consistent error responses across all endpoints
+- **JWT Authentication**: Complete JWT token system with access/refresh tokens and middleware protection
+- **Password Security**: Argon2id hashing with salt for secure password storage
 
 ## API Endpoints
 
-### User Management
+### Authentication
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login (returns JWT tokens)
+- `GET /api/v1/auth/me` - Get current user information (requires authentication)
+- `POST /api/v1/auth/refresh` - Refresh access token using refresh token
+
+### User Management (All require JWT authentication)
 - `POST /api/v1/users` - Create user
 - `GET /api/v1/users/:id` - Get user by ID
 - `PUT /api/v1/users/:id` - Update user
 - `DELETE /api/v1/users/:id` - Delete user
 - `GET /api/v1/users` - List users (with pagination: ?page=1&limit=10)
 
-### User Status Management
+### User Status Management (All require JWT authentication)
 - `POST /api/v1/users/:id/activate` - Activate user
 - `POST /api/v1/users/:id/deactivate` - Deactivate user
 - `POST /api/v1/users/:id/ban` - Ban user
@@ -178,6 +200,41 @@ return c.Status(fiber.StatusBadRequest).JSON(
 }
 ```
 
+## Authentication System
+
+### JWT Token Management
+The application uses a dual-token JWT system:
+- **Access Token**: Short-lived (15 minutes) for API access
+- **Refresh Token**: Long-lived (7 days) for token renewal
+
+### Password Security
+- **Argon2id Algorithm**: Industry-standard password hashing
+- **Salt Generation**: Unique salt per password
+- **Timing Attack Protection**: Constant-time comparison
+
+### Authentication Middleware
+- **RequireAuth**: Mandatory authentication for protected routes
+- **OptionalAuth**: Optional authentication for context-aware features
+- **User Context**: Authenticated user information injected into request context
+
+### Usage Examples
+```go
+// Get current user from context
+currentUser, exists := auth.GetCurrentUser(c)
+if !exists {
+    return c.Status(fiber.StatusUnauthorized).JSON(...)
+}
+
+// Hash password securely
+hashedPassword, err := security.HashPassword("password123")
+
+// Verify password
+isValid, err := security.VerifyPassword("password123", hashedPassword)
+
+// Generate JWT tokens
+tokenPair, err := jwtManager.GenerateTokenPair(userID, username, email)
+```
+
 ## Development Notes
 
 - **EntGo Integration**: Entities are defined in `ent/schema/` and code is auto-generated
@@ -185,6 +242,8 @@ return c.Status(fiber.StatusBadRequest).JSON(
 - **Clean Architecture**: Domain layer has no external dependencies
 - **Hot Reload**: Use `air` command for automatic restarts during development
 - **Docker Support**: Multi-stage builds for production, hot reload for development
+- **JWT Security**: All user management endpoints require valid JWT authentication
+- **Route Protection**: Authentication middleware automatically validates tokens and injects user context
 
 ## Git Commit Guidelines
 
@@ -220,10 +279,15 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 - **db**: Database-related changes
 - **docker**: Docker configuration
 - **deps**: Dependency updates
+- **auth**: Authentication and authorization changes
+- **security**: Security-related improvements
 
 ### Commit Examples
 ```bash
 feat(api): add user authentication endpoint
+feat(auth): implement JWT token system with refresh tokens
+feat(security): add Argon2id password hashing
+feat(middleware): add JWT authentication middleware
 fix(db): resolve SQLite connection timeout
 docs: update README with Docker instructions
 refactor(domain): extract user validation to service

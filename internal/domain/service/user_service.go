@@ -8,6 +8,7 @@ import (
 	"nebula-live/internal/domain/entity"
 	"nebula-live/internal/domain/repository"
 	"nebula-live/pkg/logger"
+	"nebula-live/pkg/security"
 	
 	"go.uber.org/zap"
 )
@@ -105,11 +106,20 @@ func (s *userService) CreateUser(ctx context.Context, username, email, password,
 		return nil, ErrUserAlreadyExists
 	}
 
+	// 哈希密码
+	hashedPassword, err := security.HashPassword(password)
+	if err != nil {
+		logger.Error("Failed to hash password", 
+			zap.String("username", username), 
+			zap.Error(err))
+		return nil, err
+	}
+
 	// 创建用户实体
 	user := &entity.User{
 		Username:  username,
 		Email:     email,
-		Password:  password, // 注意：实际应用中应该先加密密码
+		Password:  hashedPassword,
 		Nickname:  nickname,
 		Status:    entity.UserStatusActive,
 		CreatedAt: time.Now(),
@@ -176,8 +186,15 @@ func (s *userService) ValidateUser(ctx context.Context, username, password strin
 		return nil, ErrInvalidCredentials
 	}
 
-	// 简单的密码验证，实际应用中应该使用加密验证
-	if user.Password != password {
+	// 验证密码
+	valid, err := security.VerifyPassword(password, user.Password)
+	if err != nil {
+		logger.Error("Failed to verify password", 
+			zap.String("username", username), 
+			zap.Error(err))
+		return nil, ErrInvalidCredentials
+	}
+	if !valid {
 		return nil, ErrInvalidCredentials
 	}
 

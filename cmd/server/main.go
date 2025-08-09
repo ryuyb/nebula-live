@@ -9,6 +9,7 @@ import (
 	"nebula-live/internal/infrastructure"
 	"nebula-live/internal/infrastructure/persistence"
 	"nebula-live/internal/infrastructure/web/handler"
+	"nebula-live/internal/infrastructure/web/middleware"
 	"nebula-live/internal/infrastructure/web/router"
 	"nebula-live/pkg/logger"
 
@@ -26,6 +27,9 @@ func main() {
 		
 		// 服务层模块
 		service.ServiceModule,
+		
+		// 中间件模块
+		middleware.MiddlewareModule,
 		
 		// 处理器层模块
 		handler.HandlerModule,

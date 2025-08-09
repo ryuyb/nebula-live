@@ -17,6 +17,7 @@ func asRoute(f any) any {
 var RouterModule = fx.Options(
 	// 提供各种路由器
 	fx.Provide(asRoute(NewUserRouter)),
+	fx.Provide(asRoute(NewAuthRouter)),
 	
 	// 提供路由注册器
 	fx.Provide(NewRouterRegistry),

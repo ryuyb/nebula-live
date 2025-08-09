@@ -14,6 +14,8 @@
 - 🐳 **容器化** - Docker 和 Docker Compose 支持
 - 🔒 **统一错误处理** - APIError 标准化错误响应
 - ✅ **健康检查** - 内置健康检查端点
+- 🔐 **JWT 认证** - 基于 JWT 的用户认证和授权系统
+- 🛡️ **中间件保护** - 路由级别的认证中间件
 
 ## 🏛️ 架构设计
 
@@ -45,6 +47,8 @@ nebula-live/
 | **日志** | Zap | v1.28.0 |
 | **配置** | Viper | v1.20.0 |
 | **CLI** | Cobra | v1.8.1 |
+| **JWT认证** | golang-jwt/jwt | v5.3.0 |
+| **密码哈希** | Argon2id | - |
 | **数据库** | PostgreSQL / SQLite | - |
 | **容器化** | Docker | - |
 
@@ -149,7 +153,100 @@ docker-compose --profile postgres --profile redis up
 GET /health
 ```
 
+### 用户认证
+
+#### 用户注册
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "nickname": "John"
+}
+```
+
+**响应示例：**
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "nickname": "John",
+    "avatar": "",
+    "status": "active",
+    "created_at": "2025-08-09T10:30:00Z",
+    "updated_at": "2025-08-09T10:30:00Z"
+  },
+  "message": "User registered successfully"
+}
+```
+
+#### 用户登录
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "password123"
+}
+```
+
+**响应示例：**
+```json
+{
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "nickname": "John",
+    "avatar": "",
+    "status": "active",
+    "created_at": "2025-08-09T10:30:00Z",
+    "updated_at": "2025-08-09T10:30:00Z"
+  },
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_at": 1691578200,
+  "message": "Login successful"
+}
+```
+
+#### 获取当前用户信息
+```http
+GET /api/v1/auth/me
+Authorization: Bearer {access_token}
+```
+
+#### 刷新访问令牌
+```http
+POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**响应示例：**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_at": 1691578200,
+  "message": "Token refreshed successfully"
+}
+```
+
 ### 用户管理
+
+⚠️ **所有用户管理API都需要JWT认证** - 请在请求头中包含 `Authorization: Bearer {access_token}`
 
 #### 创建用户
 ```http
@@ -247,6 +344,21 @@ server:
   read_timeout: 30s
   write_timeout: 30s
 ```
+
+### JWT 配置
+```yaml
+jwt:
+  secret: "your-secret-key-change-this-in-production"
+  access_token_ttl: "15m"     # 访问令牌过期时间
+  refresh_token_ttl: "168h"   # 刷新令牌过期时间 (7天)
+  issuer: "nebula-live"       # JWT 发行者
+```
+
+### 认证中间件
+
+项目包含完整的JWT认证中间件系统：
+- **RequireAuth**: 强制认证中间件，所有用户管理API使用
+- **OptionalAuth**: 可选认证中间件，可用于需要识别用户但不强制登录的场景
 
 ## 🔧 开发指南
 

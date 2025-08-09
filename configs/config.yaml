@@ -11,13 +11,8 @@ server:
   idle_timeout: 120s
 
 database:
-  driver: "postgres"
-  host: "localhost"
-  port: 5432
-  username: "postgres"
-  password: "password"
-  database: "nebula_live"
-  ssl_mode: "disable"
+  driver: "sqlite"
+  database: "data/nebula_live.db"  # SQLite数据库文件路径，也可以使用 ":memory:" 表示内存数据库
   max_idle_conns: 10
   max_open_conns: 30
   conn_max_lifetime: 30m
@@ -43,8 +38,10 @@ log:
   enable_file: true
 
 jwt:
-  secret: "your-secret-key"
-  expires_in: "24h"
+  secret: "your-secret-key-change-this-in-production"
+  access_token_ttl: "15m"
+  refresh_token_ttl: "168h"  # 7 days
+  issuer: "nebula-live"
 
 cors:
   allowed_origins:
