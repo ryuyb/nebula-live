@@ -29,8 +29,8 @@ func (m *RBACMiddleware) RequirePermission(resource, action string) fiber.Handle
 		// 从上下文获取当前用户
 		currentUser, exists := auth.GetCurrentUser(c)
 		if !exists {
-			m.logger.Debug("No authenticated user found for permission check", 
-				zap.String("resource", resource), 
+			m.logger.Debug("No authenticated user found for permission check",
+				zap.String("resource", resource),
 				zap.String("action", action))
 			return c.Status(fiber.StatusUnauthorized).JSON(
 				errors.NewAPIError(fiber.StatusUnauthorized, "Unauthorized", "Authentication required"),
@@ -40,9 +40,9 @@ func (m *RBACMiddleware) RequirePermission(resource, action string) fiber.Handle
 		// 检查用户权限
 		hasPermission, err := m.rbacService.HasPermission(c.Context(), currentUser.UserID, resource, action)
 		if err != nil {
-			m.logger.Error("Failed to check user permission", 
+			m.logger.Error("Failed to check user permission",
 				zap.Uint("user_id", currentUser.UserID),
-				zap.String("resource", resource), 
+				zap.String("resource", resource),
 				zap.String("action", action),
 				zap.Error(err))
 			return c.Status(fiber.StatusInternalServerError).JSON(
@@ -51,20 +51,20 @@ func (m *RBACMiddleware) RequirePermission(resource, action string) fiber.Handle
 		}
 
 		if !hasPermission {
-			m.logger.Debug("User lacks required permission", 
+			m.logger.Debug("User lacks required permission",
 				zap.Uint("user_id", currentUser.UserID),
 				zap.String("username", currentUser.Username),
-				zap.String("resource", resource), 
+				zap.String("resource", resource),
 				zap.String("action", action))
 			return c.Status(fiber.StatusForbidden).JSON(
 				errors.NewAPIError(fiber.StatusForbidden, "Forbidden", "Insufficient permissions"),
 			)
 		}
 
-		m.logger.Debug("Permission check passed", 
+		m.logger.Debug("Permission check passed",
 			zap.Uint("user_id", currentUser.UserID),
 			zap.String("username", currentUser.Username),
-			zap.String("resource", resource), 
+			zap.String("resource", resource),
 			zap.String("action", action))
 
 		return c.Next()
@@ -77,7 +77,7 @@ func (m *RBACMiddleware) RequireRole(roleName string) fiber.Handler {
 		// 从上下文获取当前用户
 		currentUser, exists := auth.GetCurrentUser(c)
 		if !exists {
-			m.logger.Debug("No authenticated user found for role check", 
+			m.logger.Debug("No authenticated user found for role check",
 				zap.String("role", roleName))
 			return c.Status(fiber.StatusUnauthorized).JSON(
 				errors.NewAPIError(fiber.StatusUnauthorized, "Unauthorized", "Authentication required"),
@@ -87,7 +87,7 @@ func (m *RBACMiddleware) RequireRole(roleName string) fiber.Handler {
 		// 检查用户角色
 		hasRole, err := m.rbacService.HasRole(c.Context(), currentUser.UserID, roleName)
 		if err != nil {
-			m.logger.Error("Failed to check user role", 
+			m.logger.Error("Failed to check user role",
 				zap.Uint("user_id", currentUser.UserID),
 				zap.String("role", roleName),
 				zap.Error(err))
@@ -97,7 +97,7 @@ func (m *RBACMiddleware) RequireRole(roleName string) fiber.Handler {
 		}
 
 		if !hasRole {
-			m.logger.Debug("User lacks required role", 
+			m.logger.Debug("User lacks required role",
 				zap.Uint("user_id", currentUser.UserID),
 				zap.String("username", currentUser.Username),
 				zap.String("role", roleName))
@@ -106,7 +106,7 @@ func (m *RBACMiddleware) RequireRole(roleName string) fiber.Handler {
 			)
 		}
 
-		m.logger.Debug("Role check passed", 
+		m.logger.Debug("Role check passed",
 			zap.Uint("user_id", currentUser.UserID),
 			zap.String("username", currentUser.Username),
 			zap.String("role", roleName))
@@ -129,7 +129,7 @@ func (m *RBACMiddleware) RequireAdmin() fiber.Handler {
 		// 检查是否为管理员
 		isAdmin, err := m.rbacService.HasRole(c.Context(), currentUser.UserID, "admin")
 		if err != nil {
-			m.logger.Error("Failed to check admin role", 
+			m.logger.Error("Failed to check admin role",
 				zap.Uint("user_id", currentUser.UserID),
 				zap.Error(err))
 			return c.Status(fiber.StatusInternalServerError).JSON(
@@ -138,7 +138,7 @@ func (m *RBACMiddleware) RequireAdmin() fiber.Handler {
 		}
 
 		if !isAdmin {
-			m.logger.Debug("User is not an admin", 
+			m.logger.Debug("User is not an admin",
 				zap.Uint("user_id", currentUser.UserID),
 				zap.String("username", currentUser.Username))
 			return c.Status(fiber.StatusForbidden).JSON(
@@ -146,7 +146,7 @@ func (m *RBACMiddleware) RequireAdmin() fiber.Handler {
 			)
 		}
 
-		m.logger.Debug("Admin check passed", 
+		m.logger.Debug("Admin check passed",
 			zap.Uint("user_id", currentUser.UserID),
 			zap.String("username", currentUser.Username))
 

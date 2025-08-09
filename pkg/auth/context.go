@@ -17,7 +17,7 @@ func GetCurrentUser(c *fiber.Ctx) (*UserClaims, bool) {
 	if user == nil {
 		return nil, false
 	}
-	
+
 	claims, ok := user.(*UserClaims)
 	return claims, ok
 }
@@ -28,7 +28,7 @@ func GetCurrentUserID(c *fiber.Ctx) (uint, bool) {
 	if userID == nil {
 		return 0, false
 	}
-	
+
 	id, ok := userID.(uint)
 	return id, ok
 }

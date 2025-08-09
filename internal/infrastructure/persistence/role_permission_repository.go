@@ -28,18 +28,18 @@ func (r *rolePermissionRepository) AssignPermission(ctx context.Context, rolePer
 		Create().
 		SetRoleID(rolePermission.RoleID).
 		SetPermissionID(rolePermission.PermissionID)
-	
+
 	// 只有当AssignedBy不为0时才设置
 	if rolePermission.AssignedBy != 0 {
 		create = create.SetAssignedBy(rolePermission.AssignedBy)
 	}
-	
+
 	created, err := create.Save(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to assign permission to role", 
-			zap.Uint("role_id", rolePermission.RoleID), 
-			zap.Uint("permission_id", rolePermission.PermissionID), 
+		logger.Error("Failed to assign permission to role",
+			zap.Uint("role_id", rolePermission.RoleID),
+			zap.Uint("permission_id", rolePermission.PermissionID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -61,11 +61,11 @@ func (r *rolePermissionRepository) RemovePermission(ctx context.Context, roleID,
 			rolepermission.PermissionID(permissionID),
 		).
 		Exec(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to remove permission from role", 
-			zap.Uint("role_id", roleID), 
-			zap.Uint("permission_id", permissionID), 
+		logger.Error("Failed to remove permission from role",
+			zap.Uint("role_id", roleID),
+			zap.Uint("permission_id", permissionID),
 			zap.Error(err))
 		return err
 	}
@@ -78,10 +78,10 @@ func (r *rolePermissionRepository) GetRolePermissions(ctx context.Context, roleI
 		Query().
 		Where(permission.HasRolePermissionsWith(rolepermission.RoleID(roleID))).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to get role permissions", 
-			zap.Uint("role_id", roleID), 
+		logger.Error("Failed to get role permissions",
+			zap.Uint("role_id", roleID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (r *rolePermissionRepository) GetRolePermissions(ctx context.Context, roleI
 			UpdatedAt:   permEnt.UpdatedAt,
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -109,10 +109,10 @@ func (r *rolePermissionRepository) GetPermissionRoles(ctx context.Context, permi
 		Query().
 		Where(role.HasRolePermissionsWith(rolepermission.PermissionID(permissionID))).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to get permission roles", 
-			zap.Uint("permission_id", permissionID), 
+		logger.Error("Failed to get permission roles",
+			zap.Uint("permission_id", permissionID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (r *rolePermissionRepository) GetPermissionRoles(ctx context.Context, permi
 			UpdatedAt:   roleEnt.UpdatedAt,
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -141,11 +141,11 @@ func (r *rolePermissionRepository) HasPermission(ctx context.Context, roleID, pe
 			rolepermission.PermissionID(permissionID),
 		).
 		Exist(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to check role permission", 
-			zap.Uint("role_id", roleID), 
-			zap.Uint("permission_id", permissionID), 
+		logger.Error("Failed to check role permission",
+			zap.Uint("role_id", roleID),
+			zap.Uint("permission_id", permissionID),
 			zap.Error(err))
 		return false, err
 	}
@@ -161,11 +161,11 @@ func (r *rolePermissionRepository) HasPermissionByName(ctx context.Context, role
 			rolepermission.HasPermissionWith(permission.Name(permissionName)),
 		).
 		Exist(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to check role permission by name", 
-			zap.Uint("role_id", roleID), 
-			zap.String("permission_name", permissionName), 
+		logger.Error("Failed to check role permission by name",
+			zap.Uint("role_id", roleID),
+			zap.String("permission_name", permissionName),
 			zap.Error(err))
 		return false, err
 	}
@@ -184,10 +184,10 @@ func (r *rolePermissionRepository) GetUserPermissions(ctx context.Context, userI
 			),
 		).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to get user permissions", 
-			zap.Uint("user_id", userID), 
+		logger.Error("Failed to get user permissions",
+			zap.Uint("user_id", userID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func (r *rolePermissionRepository) GetUserPermissions(ctx context.Context, userI
 			UpdatedAt:   permEnt.UpdatedAt,
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -223,12 +223,12 @@ func (r *rolePermissionRepository) CheckUserPermission(ctx context.Context, user
 			),
 		).
 		Exist(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to check user permission", 
-			zap.Uint("user_id", userID), 
-			zap.String("resource", resource), 
-			zap.String("action", action), 
+		logger.Error("Failed to check user permission",
+			zap.Uint("user_id", userID),
+			zap.String("resource", resource),
+			zap.String("action", action),
 			zap.Error(err))
 		return false, err
 	}

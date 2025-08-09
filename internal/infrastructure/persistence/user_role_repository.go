@@ -29,11 +29,11 @@ func (r *userRoleRepository) AssignRole(ctx context.Context, userRole *entity.Us
 		SetRoleID(userRole.RoleID).
 		SetNillableAssignedBy(&userRole.AssignedBy).
 		Save(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to assign role to user", 
-			zap.Uint("user_id", userRole.UserID), 
-			zap.Uint("role_id", userRole.RoleID), 
+		logger.Error("Failed to assign role to user",
+			zap.Uint("user_id", userRole.UserID),
+			zap.Uint("role_id", userRole.RoleID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -55,11 +55,11 @@ func (r *userRoleRepository) RemoveRole(ctx context.Context, userID, roleID uint
 			userrole.RoleID(roleID),
 		).
 		Exec(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to remove role from user", 
-			zap.Uint("user_id", userID), 
-			zap.Uint("role_id", roleID), 
+		logger.Error("Failed to remove role from user",
+			zap.Uint("user_id", userID),
+			zap.Uint("role_id", roleID),
 			zap.Error(err))
 		return err
 	}
@@ -72,10 +72,10 @@ func (r *userRoleRepository) GetUserRoles(ctx context.Context, userID uint) ([]*
 		Query().
 		Where(role.HasUserRolesWith(userrole.UserID(userID))).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to get user roles", 
-			zap.Uint("user_id", userID), 
+		logger.Error("Failed to get user roles",
+			zap.Uint("user_id", userID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (r *userRoleRepository) GetUserRoles(ctx context.Context, userID uint) ([]*
 			UpdatedAt:   roleEnt.UpdatedAt,
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -101,10 +101,10 @@ func (r *userRoleRepository) GetRoleUsers(ctx context.Context, roleID uint) ([]*
 		Query().
 		Where(user.HasUserRolesWith(userrole.RoleID(roleID))).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to get role users", 
-			zap.Uint("role_id", roleID), 
+		logger.Error("Failed to get role users",
+			zap.Uint("role_id", roleID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (r *userRoleRepository) GetRoleUsers(ctx context.Context, roleID uint) ([]*
 			UpdatedAt: userEnt.UpdatedAt,
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -135,11 +135,11 @@ func (r *userRoleRepository) HasRole(ctx context.Context, userID, roleID uint) (
 			userrole.RoleID(roleID),
 		).
 		Exist(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to check user role", 
-			zap.Uint("user_id", userID), 
-			zap.Uint("role_id", roleID), 
+		logger.Error("Failed to check user role",
+			zap.Uint("user_id", userID),
+			zap.Uint("role_id", roleID),
 			zap.Error(err))
 		return false, err
 	}
@@ -155,11 +155,11 @@ func (r *userRoleRepository) HasRoleByName(ctx context.Context, userID uint, rol
 			userrole.HasRoleWith(role.Name(roleName)),
 		).
 		Exist(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to check user role by name", 
-			zap.Uint("user_id", userID), 
-			zap.String("role_name", roleName), 
+		logger.Error("Failed to check user role by name",
+			zap.Uint("user_id", userID),
+			zap.String("role_name", roleName),
 			zap.Error(err))
 		return false, err
 	}
@@ -172,10 +172,10 @@ func (r *userRoleRepository) GetUserRoleAssignments(ctx context.Context, userID 
 		Query().
 		Where(userrole.UserID(userID)).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to get user role assignments", 
-			zap.Uint("user_id", userID), 
+		logger.Error("Failed to get user role assignments",
+			zap.Uint("user_id", userID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func (r *userRoleRepository) GetUserRoleAssignments(ctx context.Context, userID 
 			AssignedAt: ur.AssignedAt,
 		}
 	}
-	
+
 	return result, nil
 }
 

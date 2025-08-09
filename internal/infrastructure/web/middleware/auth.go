@@ -71,7 +71,7 @@ func (m *AuthMiddleware) RequireAuth() fiber.Handler {
 		// 验证token
 		claims, err := m.jwtManager.ValidateToken(token)
 		if err != nil {
-			m.logger.Debug("Token validation failed", 
+			m.logger.Debug("Token validation failed",
 				zap.Error(err),
 				zap.String("token", token[:min(len(token), 50)]+"..."))
 
@@ -99,7 +99,7 @@ func (m *AuthMiddleware) RequireAuth() fiber.Handler {
 		c.Locals(AuthContextKey, claims)
 		c.Locals(UserIDContextKey, claims.UserID)
 
-		m.logger.Debug("User authenticated successfully", 
+		m.logger.Debug("User authenticated successfully",
 			zap.Uint("user_id", claims.UserID),
 			zap.String("username", claims.Username))
 
@@ -134,7 +134,7 @@ func (m *AuthMiddleware) OptionalAuth() fiber.Handler {
 		claims, err := m.jwtManager.ValidateToken(token)
 		if err != nil {
 			// token无效，记录日志但不返回错误
-			m.logger.Debug("Optional auth token validation failed", 
+			m.logger.Debug("Optional auth token validation failed",
 				zap.Error(err),
 				zap.String("token", token[:min(len(token), 50)]+"..."))
 			return c.Next()
@@ -144,7 +144,7 @@ func (m *AuthMiddleware) OptionalAuth() fiber.Handler {
 		c.Locals(AuthContextKey, claims)
 		c.Locals(UserIDContextKey, claims.UserID)
 
-		m.logger.Debug("User optionally authenticated", 
+		m.logger.Debug("User optionally authenticated",
 			zap.Uint("user_id", claims.UserID),
 			zap.String("username", claims.Username))
 

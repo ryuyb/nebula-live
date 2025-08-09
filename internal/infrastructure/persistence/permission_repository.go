@@ -30,10 +30,10 @@ func (r *permissionRepository) Create(ctx context.Context, permEntity *entity.Pe
 		SetAction(permEntity.Action).
 		SetIsSystem(permEntity.IsSystem).
 		Save(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to create permission", 
-			zap.String("name", permEntity.Name), 
+		logger.Error("Failed to create permission",
+			zap.String("name", permEntity.Name),
 			zap.Error(err))
 		return nil, err
 	}
@@ -46,13 +46,13 @@ func (r *permissionRepository) GetByID(ctx context.Context, id uint) (*entity.Pe
 		Query().
 		Where(permission.ID(id)).
 		Only(ctx)
-	
+
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
 		}
-		logger.Error("Failed to get permission by ID", 
-			zap.Uint("id", id), 
+		logger.Error("Failed to get permission by ID",
+			zap.Uint("id", id),
 			zap.Error(err))
 		return nil, err
 	}
@@ -65,13 +65,13 @@ func (r *permissionRepository) GetByName(ctx context.Context, name string) (*ent
 		Query().
 		Where(permission.Name(name)).
 		Only(ctx)
-	
+
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
 		}
-		logger.Error("Failed to get permission by name", 
-			zap.String("name", name), 
+		logger.Error("Failed to get permission by name",
+			zap.String("name", name),
 			zap.Error(err))
 		return nil, err
 	}
@@ -86,11 +86,11 @@ func (r *permissionRepository) List(ctx context.Context, offset, limit int) ([]*
 		Limit(limit).
 		Order(ent.Desc(permission.FieldCreatedAt)).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to list permissions", 
-			zap.Int("offset", offset), 
-			zap.Int("limit", limit), 
+		logger.Error("Failed to list permissions",
+			zap.Int("offset", offset),
+			zap.Int("limit", limit),
 			zap.Error(err))
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (r *permissionRepository) List(ctx context.Context, offset, limit int) ([]*
 	for i, perm := range permissions {
 		result[i] = r.convertToEntity(perm)
 	}
-	
+
 	return result, nil
 }
 
@@ -109,10 +109,10 @@ func (r *permissionRepository) Update(ctx context.Context, permEntity *entity.Pe
 		SetDisplayName(permEntity.DisplayName).
 		SetNillableDescription(&permEntity.Description).
 		Save(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to update permission", 
-			zap.Uint("id", permEntity.ID), 
+		logger.Error("Failed to update permission",
+			zap.Uint("id", permEntity.ID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -124,10 +124,10 @@ func (r *permissionRepository) Delete(ctx context.Context, id uint) error {
 	err := r.client.Permission.
 		DeleteOneID(id).
 		Exec(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to delete permission", 
-			zap.Uint("id", id), 
+		logger.Error("Failed to delete permission",
+			zap.Uint("id", id),
 			zap.Error(err))
 		return err
 	}
@@ -141,7 +141,7 @@ func (r *permissionRepository) GetSystemPermissions(ctx context.Context) ([]*ent
 		Where(permission.IsSystem(true)).
 		Order(ent.Asc(permission.FieldName)).
 		All(ctx)
-	
+
 	if err != nil {
 		logger.Error("Failed to get system permissions", zap.Error(err))
 		return nil, err
@@ -151,7 +151,7 @@ func (r *permissionRepository) GetSystemPermissions(ctx context.Context) ([]*ent
 	for i, permEnt := range permissions {
 		result[i] = r.convertToEntity(permEnt)
 	}
-	
+
 	return result, nil
 }
 
@@ -160,10 +160,10 @@ func (r *permissionRepository) ExistsByName(ctx context.Context, name string) (b
 		Query().
 		Where(permission.Name(name)).
 		Exist(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to check permission existence", 
-			zap.String("name", name), 
+		logger.Error("Failed to check permission existence",
+			zap.String("name", name),
 			zap.Error(err))
 		return false, err
 	}
@@ -177,10 +177,10 @@ func (r *permissionRepository) GetByResource(ctx context.Context, resource strin
 		Where(permission.Resource(resource)).
 		Order(ent.Asc(permission.FieldAction)).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to get permissions by resource", 
-			zap.String("resource", resource), 
+		logger.Error("Failed to get permissions by resource",
+			zap.String("resource", resource),
 			zap.Error(err))
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (r *permissionRepository) GetByResource(ctx context.Context, resource strin
 	for i, perm := range permissions {
 		result[i] = r.convertToEntity(perm)
 	}
-	
+
 	return result, nil
 }
 

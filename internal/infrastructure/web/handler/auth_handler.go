@@ -26,7 +26,7 @@ func NewAuthHandler(userService service.UserService, config *config.Config, logg
 		RefreshTokenTTL: config.JWT.RefreshTokenTTL,
 		Issuer:          config.JWT.Issuer,
 	}
-	
+
 	return &AuthHandler{
 		userService: userService,
 		jwtManager:  auth.NewJWTManager(tokenConfig),
@@ -71,11 +71,11 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	user, err := h.userService.CreateUser(c.Context(), req.Username, req.Email, req.Password, req.Nickname)
 	if err != nil {
 		h.logger.Error("Failed to register user", zap.Error(err))
-		
+
 		if err == service.ErrUserAlreadyExists {
 			return c.Status(fiber.StatusConflict).JSON(errors.NewAPIError(fiber.StatusConflict, "User already exists", "Username or email already exists"))
 		}
-		
+
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to register user"))
 	}
 
@@ -110,10 +110,10 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	user, err := h.userService.ValidateUser(c.Context(), req.Username, req.Password)
 	if err != nil {
-		h.logger.Error("Failed to validate user credentials", 
-			zap.String("username", req.Username), 
+		h.logger.Error("Failed to validate user credentials",
+			zap.String("username", req.Username),
 			zap.Error(err))
-		
+
 		switch err {
 		case service.ErrInvalidCredentials:
 			return c.Status(fiber.StatusUnauthorized).JSON(errors.NewAPIError(fiber.StatusUnauthorized, "Invalid credentials", "Username or password is incorrect"))
@@ -129,8 +129,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	// 生成JWT令牌
 	tokenPair, err := h.jwtManager.GenerateTokenPair(user.ID, user.Username, user.Email)
 	if err != nil {
-		h.logger.Error("Failed to generate JWT tokens", 
-			zap.Uint("user_id", user.ID), 
+		h.logger.Error("Failed to generate JWT tokens",
+			zap.Uint("user_id", user.ID),
 			zap.Error(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to generate authentication tokens"))
 	}
@@ -172,9 +172,9 @@ func (h *AuthHandler) GetCurrentUser(c *fiber.Ctx) error {
 		if err == service.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(errors.NewAPIError(fiber.StatusNotFound, "User not found", "Current user not found"))
 		}
-		
-		h.logger.Error("Failed to get current user", 
-			zap.Uint("user_id", currentUser.UserID), 
+
+		h.logger.Error("Failed to get current user",
+			zap.Uint("user_id", currentUser.UserID),
 			zap.Error(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to get current user"))
 	}

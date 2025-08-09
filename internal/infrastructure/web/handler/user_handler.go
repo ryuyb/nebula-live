@@ -71,11 +71,11 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	user, err := h.userService.CreateUser(c.Context(), req.Username, req.Email, req.Password, req.Nickname)
 	if err != nil {
 		h.logger.Error("Failed to create user", zap.Error(err))
-		
+
 		if err == service.ErrUserAlreadyExists {
 			return c.Status(fiber.StatusConflict).JSON(errors.NewAPIError(fiber.StatusConflict, "User already exists", "Username or email already exists"))
 		}
-		
+
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to create user"))
 	}
 
@@ -106,7 +106,7 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 		if err == service.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(errors.NewAPIError(fiber.StatusNotFound, "User not found", "User with the given ID does not exist"))
 		}
-		
+
 		h.logger.Error("Failed to get user", zap.Error(err), zap.Uint("user_id", uint(id)))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to get user"))
 	}
@@ -145,7 +145,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		if err == service.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(errors.NewAPIError(fiber.StatusNotFound, "User not found", "User with the given ID does not exist"))
 		}
-		
+
 		h.logger.Error("Failed to get user for update", zap.Error(err), zap.Uint("user_id", uint(id)))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to get user"))
 	}
@@ -189,7 +189,7 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 		if err == service.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(errors.NewAPIError(fiber.StatusNotFound, "User not found", "User with the given ID does not exist"))
 		}
-		
+
 		h.logger.Error("Failed to delete user", zap.Error(err), zap.Uint("user_id", uint(id)))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to delete user"))
 	}
@@ -202,14 +202,14 @@ func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 	// 解析分页参数
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
-	
+
 	if page < 1 {
 		page = 1
 	}
 	if limit < 1 || limit > 100 {
 		limit = 10
 	}
-	
+
 	offset := (page - 1) * limit
 
 	users, err := h.userService.ListUsers(c.Context(), offset, limit)
@@ -262,7 +262,7 @@ func (h *UserHandler) ActivateUser(c *fiber.Ctx) error {
 		if err == service.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(errors.NewAPIError(fiber.StatusNotFound, "User not found", "User with the given ID does not exist"))
 		}
-		
+
 		h.logger.Error("Failed to activate user", zap.Error(err), zap.Uint("user_id", uint(id)))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to activate user"))
 	}
@@ -284,7 +284,7 @@ func (h *UserHandler) DeactivateUser(c *fiber.Ctx) error {
 		if err == service.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(errors.NewAPIError(fiber.StatusNotFound, "User not found", "User with the given ID does not exist"))
 		}
-		
+
 		h.logger.Error("Failed to deactivate user", zap.Error(err), zap.Uint("user_id", uint(id)))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to deactivate user"))
 	}
@@ -306,7 +306,7 @@ func (h *UserHandler) BanUser(c *fiber.Ctx) error {
 		if err == service.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(errors.NewAPIError(fiber.StatusNotFound, "User not found", "User with the given ID does not exist"))
 		}
-		
+
 		h.logger.Error("Failed to ban user", zap.Error(err), zap.Uint("user_id", uint(id)))
 		return c.Status(fiber.StatusInternalServerError).JSON(errors.NewAPIError(fiber.StatusInternalServerError, "Internal server error", "Failed to ban user"))
 	}

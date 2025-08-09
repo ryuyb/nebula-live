@@ -6,15 +6,15 @@ import (
 
 // User 用户实体
 type User struct {
-	ID        uint      `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"` // 密码不在JSON中显示
-	Nickname  string    `json:"nickname"`
-	Avatar    string    `json:"avatar"`
+	ID        uint       `json:"id"`
+	Username  string     `json:"username"`
+	Email     string     `json:"email"`
+	Password  string     `json:"-"` // 密码不在JSON中显示
+	Nickname  string     `json:"nickname"`
+	Avatar    string     `json:"avatar"`
 	Status    UserStatus `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 // UserStatus 用户状态枚举

@@ -25,12 +25,12 @@ func NewAuthRouter(authHandler *handler.AuthHandler, authMiddleware *middleware.
 func (r *AuthRouter) RegisterRoutes(router fiber.Router) {
 	// 认证路由组
 	auth := router.Group("/auth")
-	
+
 	// 公开认证路由（不需要token）
 	{
-		auth.Post("/register", r.authHandler.Register)     // 用户注册
-		auth.Post("/login", r.authHandler.Login)           // 用户登录
-		auth.Post("/refresh", r.authHandler.RefreshToken)  // 刷新令牌
+		auth.Post("/register", r.authHandler.Register)    // 用户注册
+		auth.Post("/login", r.authHandler.Login)          // 用户登录
+		auth.Post("/refresh", r.authHandler.RefreshToken) // 刷新令牌
 	}
 
 	// 需要认证的路由

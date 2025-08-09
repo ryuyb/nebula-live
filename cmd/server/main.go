@@ -21,31 +21,31 @@ func main() {
 	fxApp := fx.New(
 		// 禁用Fx详细日志
 		fx.NopLogger,
-		
+
 		// 基础设施层模块
 		infrastructure.InfrastructureModule,
-		
+
 		// 仓储层模块
 		persistence.PersistenceModule,
-		
+
 		// 服务层模块
 		service.ServiceModule,
-		
+
 		// 中间件模块
 		middleware.MiddlewareModule,
-		
+
 		// 处理器层模块
 		handler.HandlerModule,
-		
+
 		// 路由模块
 		router.RouterModule,
-		
+
 		// 应用层模块
 		app.AppModule,
 		fx.Invoke(func(lc fx.Lifecycle, server *app.Server, client *ent.Client, rbacService service.RBACService, zapLogger *zap.Logger) {
 			// 初始化全局logger
 			logger.Initialize(zapLogger)
-			
+
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
 					// 运行数据库迁移
@@ -53,13 +53,13 @@ func main() {
 						zapLogger.Error("Failed to run migrations", zap.Error(err))
 						return err
 					}
-					
+
 					// 初始化RBAC系统数据
 					if err := rbacService.InitializeSystemData(ctx); err != nil {
 						zapLogger.Error("Failed to initialize RBAC system data", zap.Error(err))
 						return err
 					}
-					
+
 					logger.Info("Starting nebula-live server")
 					go func() {
 						if err := server.Start(); err != nil {
@@ -73,13 +73,13 @@ func main() {
 					if err := server.Stop(); err != nil {
 						logger.Error("Error stopping server", zap.Error(err))
 					}
-					
+
 					// 关闭数据库连接
 					if err := persistence.CloseEntClient(client, zapLogger); err != nil {
 						logger.Error("Error closing database connection", zap.Error(err))
 						return err
 					}
-					
+
 					return nil
 				},
 			})

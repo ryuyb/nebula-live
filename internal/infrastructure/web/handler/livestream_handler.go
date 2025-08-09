@@ -47,7 +47,7 @@ func (h *LiveStreamHandler) GetStreamStatus(c *fiber.Ctx) error {
 
 	streamInfo, err := h.liveStreamService.GetStreamStatus(context.Background(), platform, roomID)
 	if err != nil {
-		h.logger.Error("Failed to get live stream status", 
+		h.logger.Error("Failed to get live stream status",
 			zap.String("platform", platform),
 			zap.String("room_id", roomID),
 			zap.Error(err))
@@ -78,7 +78,7 @@ func (h *LiveStreamHandler) GetStreamStatus(c *fiber.Ctx) error {
 
 func (h *LiveStreamHandler) GetSupportedPlatforms(c *fiber.Ctx) error {
 	platforms := h.liveStreamService.GetSupportedPlatforms()
-	
+
 	return c.JSON(fiber.Map{
 		"platforms": platforms,
 	})

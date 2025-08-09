@@ -27,7 +27,7 @@ func entUserToDomainUser(entUser *ent.User) *entity.User {
 	if entUser == nil {
 		return nil
 	}
-	
+
 	var status entity.UserStatus
 	switch entUser.Status {
 	case user.StatusActive:
@@ -39,7 +39,7 @@ func entUserToDomainUser(entUser *ent.User) *entity.User {
 	default:
 		status = entity.UserStatusActive
 	}
-	
+
 	return &entity.User{
 		ID:        entUser.ID,
 		Username:  entUser.Username,
@@ -81,12 +81,12 @@ func (r *userRepository) Create(ctx context.Context, u *entity.User) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// 更新ID
 	u.ID = entUser.ID
 	u.CreatedAt = entUser.CreatedAt
 	u.UpdatedAt = entUser.UpdatedAt
-	
+
 	return nil
 }
 
@@ -102,7 +102,7 @@ func (r *userRepository) GetByID(ctx context.Context, id uint) (*entity.User, er
 		}
 		return nil, err
 	}
-	
+
 	return entUserToDomainUser(entUser), nil
 }
 
@@ -118,7 +118,7 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*e
 		}
 		return nil, err
 	}
-	
+
 	return entUserToDomainUser(entUser), nil
 }
 
@@ -134,7 +134,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*entity.
 		}
 		return nil, err
 	}
-	
+
 	return entUserToDomainUser(entUser), nil
 }
 
@@ -177,12 +177,12 @@ func (r *userRepository) List(ctx context.Context, offset, limit int) ([]*entity
 	if err != nil {
 		return nil, err
 	}
-	
+
 	users := make([]*entity.User, len(entUsers))
 	for i, entUser := range entUsers {
 		users[i] = entUserToDomainUser(entUser)
 	}
-	
+
 	return users, nil
 }
 

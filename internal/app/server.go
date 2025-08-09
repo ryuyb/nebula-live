@@ -26,13 +26,13 @@ func NewFiberApp(cfg *config.Config, log *zap.Logger, routerRegistry *router.Rou
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 			message := "Internal server error"
-			
+
 			if e, ok := err.(*fiber.Error); ok {
 				code = e.Code
 				message = e.Message
 			}
 
-			log.Error("Request failed", 
+			log.Error("Request failed",
 				zap.String("method", c.Method()),
 				zap.String("path", c.Path()),
 				zap.Int("status", code),

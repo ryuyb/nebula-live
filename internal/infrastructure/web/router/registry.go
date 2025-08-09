@@ -13,7 +13,7 @@ type RouterRegistry struct {
 // RouterRegistryParams 路由注册器参数
 type RouterRegistryParams struct {
 	fx.In
-	
+
 	Routers []Router `group:"routers"`
 }
 

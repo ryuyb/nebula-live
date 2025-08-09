@@ -9,7 +9,7 @@ import (
 	"nebula-live/internal/domain/repository"
 	"nebula-live/pkg/logger"
 	"nebula-live/pkg/security"
-	
+
 	"go.uber.org/zap"
 )
 
@@ -104,21 +104,21 @@ func (s *userService) CreateUser(ctx context.Context, username, email, password,
 
 // CreateUserWithRole 创建用户并分配指定角色
 func (s *userService) CreateUserWithRole(ctx context.Context, username, email, password, nickname, roleName string, assignerID uint) (*entity.User, error) {
-	logger.Info("Creating new user with role", 
-		zap.String("username", username), 
+	logger.Info("Creating new user with role",
+		zap.String("username", username),
 		zap.String("email", email),
 		zap.String("role", roleName))
 
 	// 检查用户名是否已存在
 	exists, err := s.userRepo.ExistsByUsername(ctx, username)
 	if err != nil {
-		logger.Error("Failed to check username existence", 
-			zap.String("username", username), 
+		logger.Error("Failed to check username existence",
+			zap.String("username", username),
 			zap.Error(err))
 		return nil, err
 	}
 	if exists {
-		logger.Warn("User creation failed - username already exists", 
+		logger.Warn("User creation failed - username already exists",
 			zap.String("username", username))
 		return nil, ErrUserAlreadyExists
 	}
@@ -126,13 +126,13 @@ func (s *userService) CreateUserWithRole(ctx context.Context, username, email, p
 	// 检查邮箱是否已存在
 	exists, err = s.userRepo.ExistsByEmail(ctx, email)
 	if err != nil {
-		logger.Error("Failed to check email existence", 
-			zap.String("email", email), 
+		logger.Error("Failed to check email existence",
+			zap.String("email", email),
 			zap.Error(err))
 		return nil, err
 	}
 	if exists {
-		logger.Warn("User creation failed - email already exists", 
+		logger.Warn("User creation failed - email already exists",
 			zap.String("email", email))
 		return nil, ErrUserAlreadyExists
 	}
@@ -140,8 +140,8 @@ func (s *userService) CreateUserWithRole(ctx context.Context, username, email, p
 	// 哈希密码
 	hashedPassword, err := security.HashPassword(password)
 	if err != nil {
-		logger.Error("Failed to hash password", 
-			zap.String("username", username), 
+		logger.Error("Failed to hash password",
+			zap.String("username", username),
 			zap.Error(err))
 		return nil, err
 	}
@@ -160,9 +160,9 @@ func (s *userService) CreateUserWithRole(ctx context.Context, username, email, p
 	// 保存用户
 	err = s.userRepo.Create(ctx, user)
 	if err != nil {
-		logger.Error("Failed to create user", 
-			zap.String("username", username), 
-			zap.String("email", email), 
+		logger.Error("Failed to create user",
+			zap.String("username", username),
+			zap.String("email", email),
 			zap.Error(err))
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (s *userService) CreateUserWithRole(ctx context.Context, username, email, p
 	// 分配角色
 	role, err := s.rbacService.GetRoleByName(ctx, roleName)
 	if err != nil {
-		logger.Error("Failed to get role for new user", 
+		logger.Error("Failed to get role for new user",
 			zap.Uint("user_id", user.ID),
 			zap.String("role", roleName),
 			zap.Error(err))
@@ -178,19 +178,19 @@ func (s *userService) CreateUserWithRole(ctx context.Context, username, email, p
 	} else {
 		err = s.rbacService.AssignRoleToUser(ctx, user.ID, role.ID, assignerID)
 		if err != nil {
-			logger.Error("Failed to assign role to new user", 
+			logger.Error("Failed to assign role to new user",
 				zap.Uint("user_id", user.ID),
 				zap.String("role", roleName),
 				zap.Error(err))
 		} else {
-			logger.Info("Role assigned to new user successfully", 
+			logger.Info("Role assigned to new user successfully",
 				zap.Uint("user_id", user.ID),
 				zap.String("role", roleName))
 		}
 	}
 
-	logger.Info("User created successfully", 
-		zap.Uint("user_id", user.ID), 
+	logger.Info("User created successfully",
+		zap.Uint("user_id", user.ID),
 		zap.String("username", username))
 
 	return user, nil
@@ -242,8 +242,8 @@ func (s *userService) ValidateUser(ctx context.Context, username, password strin
 	// 验证密码
 	valid, err := security.VerifyPassword(password, user.Password)
 	if err != nil {
-		logger.Error("Failed to verify password", 
-			zap.String("username", username), 
+		logger.Error("Failed to verify password",
+			zap.String("username", username),
 			zap.Error(err))
 		return nil, ErrInvalidCredentials
 	}

@@ -4,12 +4,12 @@ import "errors"
 
 // 通用错误
 var (
-	ErrInvalidInput    = errors.New("invalid input")
-	ErrUnauthorized    = errors.New("unauthorized")
-	ErrForbidden       = errors.New("forbidden")
-	ErrNotFound        = errors.New("not found")
-	ErrConflict        = errors.New("conflict")
-	ErrInternalServer  = errors.New("internal server error")
+	ErrInvalidInput   = errors.New("invalid input")
+	ErrUnauthorized   = errors.New("unauthorized")
+	ErrForbidden      = errors.New("forbidden")
+	ErrNotFound       = errors.New("not found")
+	ErrConflict       = errors.New("conflict")
+	ErrInternalServer = errors.New("internal server error")
 )
 
 // API错误响应

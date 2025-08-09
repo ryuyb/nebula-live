@@ -46,7 +46,7 @@ func NewLogger(cfg *config.Config) (*zap.Logger, error) {
 		encoderConfig = zap.NewDevelopmentEncoderConfig()
 	}
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	
+
 	// 配置彩色级别编码
 	if cfg.Log.EnableColor {
 		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
@@ -68,13 +68,13 @@ func NewLogger(cfg *config.Config) (*zap.Logger, error) {
 
 	// 根据配置决定输出目标
 	var cores []zapcore.Core
-	
+
 	// 控制台输出
 	if cfg.Log.EnableConsole {
 		consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 		cores = append(cores, zapcore.NewCore(consoleEncoder, consoleWriter, level))
 	}
-	
+
 	// 文件输出
 	if cfg.Log.EnableFile {
 		// 文件编码器始终使用普通级别编码器
@@ -83,7 +83,7 @@ func NewLogger(cfg *config.Config) (*zap.Logger, error) {
 		fileEncoder := zapcore.NewJSONEncoder(fileEncoderConfig)
 		cores = append(cores, zapcore.NewCore(fileEncoder, zapcore.AddSync(fileWriter), level))
 	}
-	
+
 	// 创建core
 	var core zapcore.Core
 	if len(cores) == 0 {

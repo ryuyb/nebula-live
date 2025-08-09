@@ -32,17 +32,17 @@ func (r *PermissionRouter) RegisterRoutes(router fiber.Router) {
 	)
 	{
 		// 基础CRUD操作
-		permissions.Post("/", r.permissionHandler.CreatePermission)                    // 创建权限
-		permissions.Get("/:id", r.permissionHandler.GetPermission)                     // 获取权限信息
-		permissions.Put("/:id", r.permissionHandler.UpdatePermission)                  // 更新权限信息
-		permissions.Delete("/:id", r.permissionHandler.DeletePermission)               // 删除权限
-		permissions.Get("/", r.permissionHandler.ListPermissions)                      // 获取权限列表
+		permissions.Post("/", r.permissionHandler.CreatePermission)      // 创建权限
+		permissions.Get("/:id", r.permissionHandler.GetPermission)       // 获取权限信息
+		permissions.Put("/:id", r.permissionHandler.UpdatePermission)    // 更新权限信息
+		permissions.Delete("/:id", r.permissionHandler.DeletePermission) // 删除权限
+		permissions.Get("/", r.permissionHandler.ListPermissions)        // 获取权限列表
 
 		// 权限分配管理
-		permissions.Post("/:id/assign", r.permissionHandler.AssignPermissionToRole)    // 为角色分配权限
+		permissions.Post("/:id/assign", r.permissionHandler.AssignPermissionToRole)            // 为角色分配权限
 		permissions.Delete("/:id/roles/:roleId", r.permissionHandler.RemovePermissionFromRole) // 移除角色权限
-		permissions.Get("/roles/:roleId", r.permissionHandler.GetRolePermissions)      // 获取角色的所有权限
-		permissions.Get("/users/:userId", r.permissionHandler.GetUserPermissions)      // 获取用户的所有权限
+		permissions.Get("/roles/:roleId", r.permissionHandler.GetRolePermissions)              // 获取角色的所有权限
+		permissions.Get("/users/:userId", r.permissionHandler.GetUserPermissions)              // 获取用户的所有权限
 	}
 }
 

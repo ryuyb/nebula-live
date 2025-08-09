@@ -13,16 +13,16 @@ import (
 
 var (
 	// RBAC相关错误
-	ErrRoleAlreadyExists      = errors.New("role already exists")
-	ErrRoleNotFound           = errors.New("role not found")
-	ErrSystemRoleCannotDelete = errors.New("system role cannot be deleted")
-	ErrPermissionAlreadyExists = errors.New("permission already exists")
-	ErrPermissionNotFound     = errors.New("permission not found")
+	ErrRoleAlreadyExists            = errors.New("role already exists")
+	ErrRoleNotFound                 = errors.New("role not found")
+	ErrSystemRoleCannotDelete       = errors.New("system role cannot be deleted")
+	ErrPermissionAlreadyExists      = errors.New("permission already exists")
+	ErrPermissionNotFound           = errors.New("permission not found")
 	ErrSystemPermissionCannotDelete = errors.New("system permission cannot be deleted")
-	ErrUserRoleAlreadyExists  = errors.New("user role already exists")
-	ErrUserRoleNotFound       = errors.New("user role not found")
-	ErrRolePermissionAlreadyExists = errors.New("role permission already exists")
-	ErrRolePermissionNotFound = errors.New("role permission not found")
+	ErrUserRoleAlreadyExists        = errors.New("user role already exists")
+	ErrUserRoleNotFound             = errors.New("user role not found")
+	ErrRolePermissionAlreadyExists  = errors.New("role permission already exists")
+	ErrRolePermissionNotFound       = errors.New("role permission not found")
 )
 
 // RBACService RBAC服务接口

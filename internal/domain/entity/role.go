@@ -7,7 +7,7 @@ import (
 // Role 角色实体
 type Role struct {
 	ID          uint      `json:"id"`
-	Name        string    `json:"name"`        // 角色名称，如：admin, user
+	Name        string    `json:"name"`         // 角色名称，如：admin, user
 	DisplayName string    `json:"display_name"` // 显示名称，如：管理员, 普通用户
 	Description string    `json:"description"`  // 角色描述
 	IsSystem    bool      `json:"is_system"`    // 是否为系统角色（系统角色不可删除）
@@ -18,7 +18,7 @@ type Role struct {
 // Permission 权限实体
 type Permission struct {
 	ID          uint      `json:"id"`
-	Name        string    `json:"name"`        // 权限名称，如：user:read, user:write, admin:manage
+	Name        string    `json:"name"`         // 权限名称，如：user:read, user:write, admin:manage
 	DisplayName string    `json:"display_name"` // 显示名称，如：查看用户, 修改用户, 管理系统
 	Description string    `json:"description"`  // 权限描述
 	Resource    string    `json:"resource"`     // 资源名称，如：user, post, system
@@ -30,10 +30,10 @@ type Permission struct {
 
 // UserRole 用户角色关联实体
 type UserRole struct {
-	ID       uint      `json:"id"`
-	UserID   uint      `json:"user_id"`
-	RoleID   uint      `json:"role_id"`
-	AssignedBy uint    `json:"assigned_by"` // 分配者的用户ID
+	ID         uint      `json:"id"`
+	UserID     uint      `json:"user_id"`
+	RoleID     uint      `json:"role_id"`
+	AssignedBy uint      `json:"assigned_by"` // 分配者的用户ID
 	AssignedAt time.Time `json:"assigned_at"`
 }
 

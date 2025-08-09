@@ -16,18 +16,18 @@ var (
 
 // TokenConfig JWT配置
 type TokenConfig struct {
-	SecretKey        string
-	AccessTokenTTL   time.Duration
-	RefreshTokenTTL  time.Duration
-	Issuer           string
+	SecretKey       string
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
+	Issuer          string
 }
 
 // DefaultTokenConfig 默认JWT配置
 var DefaultTokenConfig = &TokenConfig{
-	SecretKey:        "your-secret-key-change-this-in-production",
-	AccessTokenTTL:   15 * time.Minute,
-	RefreshTokenTTL:  7 * 24 * time.Hour, // 7 days
-	Issuer:           "nebula-live",
+	SecretKey:       "your-secret-key-change-this-in-production",
+	AccessTokenTTL:  15 * time.Minute,
+	RefreshTokenTTL: 7 * 24 * time.Hour, // 7 days
+	Issuer:          "nebula-live",
 }
 
 // UserClaims 用户JWT声明
@@ -62,7 +62,7 @@ func NewJWTManager(config *TokenConfig) *JWTManager {
 // GenerateTokenPair 生成访问令牌和刷新令牌对
 func (j *JWTManager) GenerateTokenPair(userID uint, username, email string) (*TokenPair, error) {
 	now := time.Now()
-	
+
 	// 生成访问令牌
 	accessToken, err := j.generateToken(userID, username, email, now.Add(j.config.AccessTokenTTL))
 	if err != nil {

@@ -32,16 +32,16 @@ func (r *RoleRouter) RegisterRoutes(router fiber.Router) {
 	)
 	{
 		// 基础CRUD操作
-		roles.Post("/", r.roleHandler.CreateRole)                        // 创建角色
-		roles.Get("/:id", r.roleHandler.GetRole)                         // 获取角色信息
-		roles.Put("/:id", r.roleHandler.UpdateRole)                      // 更新角色信息
-		roles.Delete("/:id", r.roleHandler.DeleteRole)                   // 删除角色
-		roles.Get("/", r.roleHandler.ListRoles)                          // 获取角色列表
+		roles.Post("/", r.roleHandler.CreateRole)      // 创建角色
+		roles.Get("/:id", r.roleHandler.GetRole)       // 获取角色信息
+		roles.Put("/:id", r.roleHandler.UpdateRole)    // 更新角色信息
+		roles.Delete("/:id", r.roleHandler.DeleteRole) // 删除角色
+		roles.Get("/", r.roleHandler.ListRoles)        // 获取角色列表
 
 		// 角色分配管理
-		roles.Post("/:id/assign", r.roleHandler.AssignRole)              // 为用户分配角色
-		roles.Delete("/:id/users/:userId", r.roleHandler.RemoveRole)     // 移除用户角色
-		roles.Get("/users/:userId", r.roleHandler.GetUserRoles)          // 获取用户的所有角色
+		roles.Post("/:id/assign", r.roleHandler.AssignRole)          // 为用户分配角色
+		roles.Delete("/:id/users/:userId", r.roleHandler.RemoveRole) // 移除用户角色
+		roles.Get("/users/:userId", r.roleHandler.GetUserRoles)      // 获取用户的所有角色
 	}
 }
 

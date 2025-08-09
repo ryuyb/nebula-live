@@ -9,7 +9,7 @@ import (
 
 // Client provides a unified interface for live streaming platforms
 type Client struct {
-	providers map[string]Provider
+	providers  map[string]Provider
 	httpClient *resty.Client
 }
 
@@ -21,12 +21,13 @@ func NewClient() *Client {
 	httpClient.SetRetryWaitTime(1 * time.Second)
 
 	client := &Client{
-		providers: make(map[string]Provider),
+		providers:  make(map[string]Provider),
 		httpClient: httpClient,
 	}
 
 	// Register default providers
 	client.RegisterProvider(NewDouyuProvider(httpClient))
+	client.RegisterProvider(NewBilibiliProvider(httpClient))
 
 	return client
 }

@@ -28,10 +28,10 @@ func (r *roleRepository) Create(ctx context.Context, roleEntity *entity.Role) (*
 		SetNillableDescription(&roleEntity.Description).
 		SetIsSystem(roleEntity.IsSystem).
 		Save(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to create role", 
-			zap.String("name", roleEntity.Name), 
+		logger.Error("Failed to create role",
+			zap.String("name", roleEntity.Name),
 			zap.Error(err))
 		return nil, err
 	}
@@ -44,13 +44,13 @@ func (r *roleRepository) GetByID(ctx context.Context, id uint) (*entity.Role, er
 		Query().
 		Where(role.ID(id)).
 		Only(ctx)
-	
+
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
 		}
-		logger.Error("Failed to get role by ID", 
-			zap.Uint("id", id), 
+		logger.Error("Failed to get role by ID",
+			zap.Uint("id", id),
 			zap.Error(err))
 		return nil, err
 	}
@@ -63,13 +63,13 @@ func (r *roleRepository) GetByName(ctx context.Context, name string) (*entity.Ro
 		Query().
 		Where(role.Name(name)).
 		Only(ctx)
-	
+
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
 		}
-		logger.Error("Failed to get role by name", 
-			zap.String("name", name), 
+		logger.Error("Failed to get role by name",
+			zap.String("name", name),
 			zap.Error(err))
 		return nil, err
 	}
@@ -84,11 +84,11 @@ func (r *roleRepository) List(ctx context.Context, offset, limit int) ([]*entity
 		Limit(limit).
 		Order(ent.Desc(role.FieldCreatedAt)).
 		All(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to list roles", 
-			zap.Int("offset", offset), 
-			zap.Int("limit", limit), 
+		logger.Error("Failed to list roles",
+			zap.Int("offset", offset),
+			zap.Int("limit", limit),
 			zap.Error(err))
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (r *roleRepository) List(ctx context.Context, offset, limit int) ([]*entity
 	for i, roleEnt := range roles {
 		result[i] = r.convertToEntity(roleEnt)
 	}
-	
+
 	return result, nil
 }
 
@@ -107,10 +107,10 @@ func (r *roleRepository) Update(ctx context.Context, roleEntity *entity.Role) (*
 		SetDisplayName(roleEntity.DisplayName).
 		SetNillableDescription(&roleEntity.Description).
 		Save(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to update role", 
-			zap.Uint("id", roleEntity.ID), 
+		logger.Error("Failed to update role",
+			zap.Uint("id", roleEntity.ID),
 			zap.Error(err))
 		return nil, err
 	}
@@ -122,10 +122,10 @@ func (r *roleRepository) Delete(ctx context.Context, id uint) error {
 	err := r.client.Role.
 		DeleteOneID(id).
 		Exec(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to delete role", 
-			zap.Uint("id", id), 
+		logger.Error("Failed to delete role",
+			zap.Uint("id", id),
 			zap.Error(err))
 		return err
 	}
@@ -139,7 +139,7 @@ func (r *roleRepository) GetSystemRoles(ctx context.Context) ([]*entity.Role, er
 		Where(role.IsSystem(true)).
 		Order(ent.Asc(role.FieldName)).
 		All(ctx)
-	
+
 	if err != nil {
 		logger.Error("Failed to get system roles", zap.Error(err))
 		return nil, err
@@ -149,7 +149,7 @@ func (r *roleRepository) GetSystemRoles(ctx context.Context) ([]*entity.Role, er
 	for i, roleEnt := range roles {
 		result[i] = r.convertToEntity(roleEnt)
 	}
-	
+
 	return result, nil
 }
 
@@ -158,10 +158,10 @@ func (r *roleRepository) ExistsByName(ctx context.Context, name string) (bool, e
 		Query().
 		Where(role.Name(name)).
 		Exist(ctx)
-	
+
 	if err != nil {
-		logger.Error("Failed to check role existence", 
-			zap.String("name", name), 
+		logger.Error("Failed to check role existence",
+			zap.String("name", name),
 			zap.Error(err))
 		return false, err
 	}
