@@ -118,6 +118,8 @@ jwt:
 - **Unified Error Handling**: APIError for consistent error responses across all endpoints
 - **JWT Authentication**: Complete JWT token system with access/refresh tokens and middleware protection
 - **Password Security**: Argon2id hashing with salt for secure password storage
+- **RBAC Authorization**: Role-Based Access Control with fine-grained permission system
+- **System Initialization**: Automatic creation of default roles and permissions on startup
 
 ## API Endpoints
 
@@ -127,17 +129,40 @@ jwt:
 - `GET /api/v1/auth/me` - Get current user information (requires authentication)
 - `POST /api/v1/auth/refresh` - Refresh access token using refresh token
 
-### User Management (All require JWT authentication)
+### User Management (Requires Admin Role)
+⚠️ **All user management endpoints require JWT authentication and admin role**
+
 - `POST /api/v1/users` - Create user
 - `GET /api/v1/users/:id` - Get user by ID
 - `PUT /api/v1/users/:id` - Update user
 - `DELETE /api/v1/users/:id` - Delete user
 - `GET /api/v1/users` - List users (with pagination: ?page=1&limit=10)
 
-### User Status Management (All require JWT authentication)
+### User Status Management (Requires Admin Role)
 - `POST /api/v1/users/:id/activate` - Activate user
 - `POST /api/v1/users/:id/deactivate` - Deactivate user
 - `POST /api/v1/users/:id/ban` - Ban user
+
+### RBAC Role Management (Requires Admin Role)
+- `POST /api/v1/roles` - Create role
+- `GET /api/v1/roles/:id` - Get role by ID
+- `PUT /api/v1/roles/:id` - Update role
+- `DELETE /api/v1/roles/:id` - Delete role
+- `GET /api/v1/roles` - List roles (with pagination: ?page=1&limit=10)
+- `POST /api/v1/roles/:id/assign` - Assign role to user
+- `DELETE /api/v1/roles/:id/users/:userId` - Remove role from user
+- `GET /api/v1/roles/users/:userId` - Get user roles
+
+### RBAC Permission Management (Requires Admin Role)
+- `POST /api/v1/permissions` - Create permission
+- `GET /api/v1/permissions/:id` - Get permission by ID
+- `PUT /api/v1/permissions/:id` - Update permission
+- `DELETE /api/v1/permissions/:id` - Delete permission
+- `GET /api/v1/permissions` - List permissions (with pagination: ?page=1&limit=10)
+- `POST /api/v1/permissions/:id/assign` - Assign permission to role
+- `DELETE /api/v1/permissions/:id/roles/:roleId` - Remove permission from role
+- `GET /api/v1/permissions/roles/:roleId` - Get role permissions
+- `GET /api/v1/permissions/users/:userId` - Get user permissions
 
 ### Health Check
 - `GET /health` - Application health status
@@ -235,6 +260,64 @@ isValid, err := security.VerifyPassword("password123", hashedPassword)
 tokenPair, err := jwtManager.GenerateTokenPair(userID, username, email)
 ```
 
+## RBAC Authorization System
+
+### Role-Based Access Control Overview
+The application implements a comprehensive RBAC system with:
+- **Roles**: Named collections of permissions (e.g., `admin`, `user`)
+- **Permissions**: Specific actions on resources (e.g., `user:read`, `user:write`)
+- **User-Role Assignment**: Users can have multiple roles
+- **Role-Permission Assignment**: Roles can have multiple permissions
+
+### System Roles and Permissions
+**Default Roles:**
+- `admin` - Administrator with all system permissions
+- `user` - Basic user with read-only permissions
+
+**System Permissions:**
+- User management: `user:read`, `user:write`, `user:delete`, `user:manage`
+- Role management: `role:read`, `role:write`, `role:delete`, `role:manage`
+- Permission management: `permission:read`, `permission:write`, `permission:delete`, `permission:manage`
+- System management: `system:manage`
+
+### RBAC Middleware Usage
+```go
+// Require specific permission
+router.Group("/api/v1/content").Use(
+    rbacMiddleware.RequirePermission("content", "read"),
+)
+
+// Require specific role
+router.Group("/api/v1/admin").Use(
+    rbacMiddleware.RequireRole("admin"),
+)
+
+// Require admin role (shorthand)
+router.Group("/api/v1/users").Use(
+    rbacMiddleware.RequireAdmin(),
+)
+```
+
+### RBAC Service Usage
+```go
+// Check user permissions
+hasPermission, err := rbacService.HasPermission(ctx, userID, "user", "write")
+
+// Check user roles
+hasRole, err := rbacService.HasRole(ctx, userID, "admin")
+
+// Assign role to user
+err := userService.AssignRole(ctx, userID, "admin", assignerID)
+
+// Get user permissions
+permissions, err := rbacService.GetUserPermissions(ctx, userID)
+```
+
+### System Initialization
+- **Automatic Setup**: System roles and permissions are created automatically on first startup
+- **Idempotent**: Safe to run multiple times, existing data is preserved
+- **Configurable**: System permissions can be modified through the API
+
 ## Development Notes
 
 - **EntGo Integration**: Entities are defined in `ent/schema/` and code is auto-generated
@@ -244,6 +327,8 @@ tokenPair, err := jwtManager.GenerateTokenPair(userID, username, email)
 - **Docker Support**: Multi-stage builds for production, hot reload for development
 - **JWT Security**: All user management endpoints require valid JWT authentication
 - **Route Protection**: Authentication middleware automatically validates tokens and injects user context
+- **RBAC Integration**: User management requires admin role, fine-grained permissions available
+- **System Bootstrap**: Default roles and permissions created automatically on first run
 
 ## Git Commit Guidelines
 

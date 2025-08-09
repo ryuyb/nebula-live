@@ -16,6 +16,9 @@
 - ✅ **健康检查** - 内置健康检查端点
 - 🔐 **JWT 认证** - 基于 JWT 的用户认证和授权系统
 - 🛡️ **中间件保护** - 路由级别的认证中间件
+- 🔒 **RBAC 权限控制** - 基于角色的访问控制系统
+- 👥 **角色管理** - 完整的角色和权限管理 API
+- 🔑 **细粒度权限** - 资源级别的权限控制 (resource:action)
 
 ## 🏛️ 架构设计
 
@@ -246,7 +249,7 @@ Content-Type: application/json
 
 ### 用户管理
 
-⚠️ **所有用户管理API都需要JWT认证** - 请在请求头中包含 `Authorization: Bearer {access_token}`
+⚠️ **所有用户管理API都需要JWT认证和管理员权限** - 请在请求头中包含 `Authorization: Bearer {access_token}`，且当前用户必须拥有`admin`角色
 
 #### 创建用户
 ```http
@@ -293,6 +296,149 @@ POST /api/v1/users/{id}/activate    # 激活用户
 POST /api/v1/users/{id}/deactivate  # 停用用户
 POST /api/v1/users/{id}/ban         # 禁用用户
 ```
+
+### RBAC 角色权限管理
+
+⚠️ **所有RBAC管理API都需要JWT认证和管理员权限** - 请在请求头中包含 `Authorization: Bearer {access_token}`，且当前用户必须拥有`admin`角色
+
+#### 角色管理
+
+##### 创建角色
+```http
+POST /api/v1/roles
+Content-Type: application/json
+
+{
+  "name": "editor",
+  "display_name": "编辑员",
+  "description": "拥有内容编辑权限的角色"
+}
+```
+
+##### 获取角色
+```http
+GET /api/v1/roles/{id}
+```
+
+##### 更新角色
+```http
+PUT /api/v1/roles/{id}
+Content-Type: application/json
+
+{
+  "display_name": "高级编辑员",
+  "description": "拥有高级编辑权限的角色"
+}
+```
+
+##### 删除角色
+```http
+DELETE /api/v1/roles/{id}
+```
+
+##### 角色列表
+```http
+GET /api/v1/roles?page=1&limit=10
+```
+
+##### 为用户分配角色
+```http
+POST /api/v1/roles/{id}/assign
+Content-Type: application/json
+
+{
+  "user_id": 1
+}
+```
+
+##### 移除用户角色
+```http
+DELETE /api/v1/roles/{id}/users/{userId}
+```
+
+##### 获取用户角色
+```http
+GET /api/v1/roles/users/{userId}
+```
+
+#### 权限管理
+
+##### 创建权限
+```http
+POST /api/v1/permissions
+Content-Type: application/json
+
+{
+  "name": "content:read",
+  "display_name": "查看内容",
+  "description": "查看内容的权限",
+  "resource": "content",
+  "action": "read"
+}
+```
+
+##### 获取权限
+```http
+GET /api/v1/permissions/{id}
+```
+
+##### 更新权限
+```http
+PUT /api/v1/permissions/{id}
+Content-Type: application/json
+
+{
+  "display_name": "查看所有内容",
+  "description": "查看系统中所有内容的权限"
+}
+```
+
+##### 删除权限
+```http
+DELETE /api/v1/permissions/{id}
+```
+
+##### 权限列表
+```http
+GET /api/v1/permissions?page=1&limit=10
+```
+
+##### 为角色分配权限
+```http
+POST /api/v1/permissions/{id}/assign
+Content-Type: application/json
+
+{
+  "role_id": 1
+}
+```
+
+##### 移除角色权限
+```http
+DELETE /api/v1/permissions/{id}/roles/{roleId}
+```
+
+##### 获取角色权限
+```http
+GET /api/v1/permissions/roles/{roleId}
+```
+
+##### 获取用户权限
+```http
+GET /api/v1/permissions/users/{userId}
+```
+
+#### 系统预定义角色和权限
+
+**系统角色：**
+- `admin` - 管理员，拥有所有系统权限
+- `user` - 普通用户，拥有基本查看权限
+
+**系统权限：**
+- 用户管理：`user:read`, `user:write`, `user:delete`, `user:manage`
+- 角色管理：`role:read`, `role:write`, `role:delete`, `role:manage`
+- 权限管理：`permission:read`, `permission:write`, `permission:delete`, `permission:manage`
+- 系统管理：`system:manage`
 
 ### 错误响应格式
 ```json
