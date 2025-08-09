@@ -13,6 +13,7 @@ Nebula-live is a modern backend API service built with Go 1.22+, following Domai
 - **Zap v1.28.0**: Structured logging with lumberjack for log rotation
 - **Viper v1.20.0**: Configuration management
 - **Cobra v1.8.1**: CLI framework
+- **Resty v3.0.0**: HTTP client for external API integrations
 
 ### Authentication & Security
 - **JWT v5.3.0**: JSON Web Token authentication with access and refresh tokens
@@ -60,6 +61,8 @@ Nebula-live is a modern backend API service built with Go 1.22+, following Domai
 │   │   ├── entity/      # Domain entities
 │   │   ├── repository/  # Repository interfaces
 │   │   └── service/     # Domain services
+│   ├── pkg/             # Internal shared packages
+│   │   └── livestream/  # Live streaming platform integrations
 │   └── infrastructure/  # Infrastructure layer
 │       ├── config/      # Configuration management
 │       ├── logger/      # Logging setup
@@ -163,6 +166,27 @@ jwt:
 - `DELETE /api/v1/permissions/:id/roles/:roleId` - Remove permission from role
 - `GET /api/v1/permissions/roles/:roleId` - Get role permissions
 - `GET /api/v1/permissions/users/:userId` - Get user permissions
+
+### Live Streaming (Public Endpoints)
+- `GET /api/v1/live-streams/platforms` - Get supported streaming platforms
+- `GET /api/v1/live-streams/:platform/rooms/:roomId/status` - Get live stream status
+
+#### Supported Platforms
+- **douyu**: 斗鱼直播平台
+
+#### Stream Status Response
+```json
+{
+  "platform": "douyu",
+  "room_id": "534740",
+  "status": "online"  // "online" | "offline"
+}
+```
+
+#### Error Responses
+- **404 Not Found**: Room does not exist
+- **400 Bad Request**: Unsupported platform or invalid room ID
+- **500 Internal Server Error**: Service unavailable or API error
 
 ### Health Check
 - `GET /health` - Application health status
@@ -366,6 +390,7 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 - **deps**: Dependency updates
 - **auth**: Authentication and authorization changes
 - **security**: Security-related improvements
+- **livestream**: Live streaming platform integrations
 
 ### Commit Examples
 ```bash
@@ -373,6 +398,8 @@ feat(api): add user authentication endpoint
 feat(auth): implement JWT token system with refresh tokens
 feat(security): add Argon2id password hashing
 feat(middleware): add JWT authentication middleware
+feat(livestream): add douyu live streaming platform integration
+fix(livestream): handle room not found error for douyu API
 fix(db): resolve SQLite connection timeout
 docs: update README with Docker instructions
 refactor(domain): extract user validation to service

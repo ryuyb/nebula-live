@@ -9,5 +9,6 @@ var HandlerModule = fx.Options(
 		NewAuthHandler,
 		NewRoleHandler,
 		NewPermissionHandler,
+		NewLiveStreamHandler,
 	),
 )
