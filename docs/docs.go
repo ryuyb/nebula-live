@@ -260,6 +260,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/live-streams/{platform}/rooms/{roomId}/info": {
+            "get": {
+                "description": "Get detailed information about a live stream room including title, owner, viewer count, etc.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live Streaming"
+                ],
+                "summary": "Get Live Room Information",
+                "parameters": [
+                    {
+                        "enum": [
+                            "douyu",
+                            "bilibili"
+                        ],
+                        "type": "string",
+                        "example": "douyu",
+                        "description": "Streaming platform",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "534740",
+                        "description": "Room ID",
+                        "name": "roomId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room information retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/handler.RoomInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/live-streams/{platform}/rooms/{roomId}/status": {
             "get": {
                 "description": "Get the current status of a live stream room on a specific platform",
@@ -3141,6 +3204,63 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.RoomInfoResponse": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "example": "第五人格"
+                },
+                "cover": {
+                    "type": "string",
+                    "example": "https://example.com/cover.jpg"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "欢迎来到直播间"
+                },
+                "keyframe": {
+                    "type": "string",
+                    "example": "https://example.com/keyframe.jpg"
+                },
+                "live_start_time": {
+                    "type": "integer",
+                    "example": 1609459200
+                },
+                "owner_avatar": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.jpg"
+                },
+                "owner_id": {
+                    "type": "string",
+                    "example": "28206057"
+                },
+                "owner_name": {
+                    "type": "string",
+                    "example": "丨马老六丨"
+                },
+                "platform": {
+                    "type": "string",
+                    "example": "douyu"
+                },
+                "room_id": {
+                    "type": "string",
+                    "example": "534740"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "online"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "【六神】游戏室"
+                },
+                "viewer_count": {
+                    "type": "integer",
+                    "example": 1234
                 }
             }
         },

@@ -47,6 +47,16 @@ func (c *Client) GetStreamStatus(ctx context.Context, platform, roomID string) (
 	return provider.GetStreamStatus(ctx, roomID)
 }
 
+// GetRoomInfo gets detailed information about a live room
+func (c *Client) GetRoomInfo(ctx context.Context, platform, roomID string) (*RoomInfo, error) {
+	provider, exists := c.providers[platform]
+	if !exists {
+		return nil, ErrPlatformNotFound
+	}
+
+	return provider.GetRoomInfo(ctx, roomID)
+}
+
 // GetSupportedPlatforms returns a list of supported platforms
 func (c *Client) GetSupportedPlatforms() []string {
 	platforms := make([]string, 0, len(c.providers))

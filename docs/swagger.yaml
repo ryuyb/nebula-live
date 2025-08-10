@@ -363,6 +363,48 @@ definitions:
       updated_at:
         type: string
     type: object
+  handler.RoomInfoResponse:
+    properties:
+      category:
+        example: 第五人格
+        type: string
+      cover:
+        example: https://example.com/cover.jpg
+        type: string
+      description:
+        example: 欢迎来到直播间
+        type: string
+      keyframe:
+        example: https://example.com/keyframe.jpg
+        type: string
+      live_start_time:
+        example: 1609459200
+        type: integer
+      owner_avatar:
+        example: https://example.com/avatar.jpg
+        type: string
+      owner_id:
+        example: "28206057"
+        type: string
+      owner_name:
+        example: 丨马老六丨
+        type: string
+      platform:
+        example: douyu
+        type: string
+      room_id:
+        example: "534740"
+        type: string
+      status:
+        example: online
+        type: string
+      title:
+        example: 【六神】游戏室
+        type: string
+      viewer_count:
+        example: 1234
+        type: integer
+    type: object
   handler.StreamStatusResponse:
     properties:
       platform:
@@ -586,6 +628,50 @@ paths:
       summary: User Registration
       tags:
       - Authentication
+  /live-streams/{platform}/rooms/{roomId}/info:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a live stream room including title,
+        owner, viewer count, etc.
+      parameters:
+      - description: Streaming platform
+        enum:
+        - douyu
+        - bilibili
+        example: douyu
+        in: path
+        name: platform
+        required: true
+        type: string
+      - description: Room ID
+        example: "534740"
+        in: path
+        name: roomId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Room information retrieved successfully
+          schema:
+            $ref: '#/definitions/handler.RoomInfoResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Room not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Get Live Room Information
+      tags:
+      - Live Streaming
   /live-streams/{platform}/rooms/{roomId}/status:
     get:
       consumes:

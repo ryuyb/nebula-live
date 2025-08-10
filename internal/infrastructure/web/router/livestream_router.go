@@ -34,4 +34,7 @@ func (r *LiveStreamRouter) RegisterRoutes(router fiber.Router) {
 
 	// Get stream status (public endpoint)
 	liveStreamGroup.Get("/:platform/rooms/:roomId/status", r.handler.GetStreamStatus)
+
+	// Get room info (public endpoint)
+	liveStreamGroup.Get("/:platform/rooms/:roomId/info", r.handler.GetRoomInfo)
 }

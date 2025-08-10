@@ -9,6 +9,7 @@ import (
 // LiveStreamService manages multiple live streaming platforms
 type LiveStreamService interface {
 	GetStreamStatus(ctx context.Context, platformName string, roomID string) (*livestream.StreamInfo, error)
+	GetRoomInfo(ctx context.Context, platformName string, roomID string) (*livestream.RoomInfo, error)
 	GetSupportedPlatforms() []string
 }
 
@@ -24,6 +25,10 @@ func NewLiveStreamService() LiveStreamService {
 
 func (s *liveStreamService) GetStreamStatus(ctx context.Context, platformName string, roomID string) (*livestream.StreamInfo, error) {
 	return s.client.GetStreamStatus(ctx, platformName, roomID)
+}
+
+func (s *liveStreamService) GetRoomInfo(ctx context.Context, platformName string, roomID string) (*livestream.RoomInfo, error) {
+	return s.client.GetRoomInfo(ctx, platformName, roomID)
 }
 
 func (s *liveStreamService) GetSupportedPlatforms() []string {
