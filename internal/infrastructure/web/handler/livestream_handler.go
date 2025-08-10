@@ -22,6 +22,16 @@ type GetStreamStatusRequest struct {
 	RoomID   string `json:"room_id" validate:"required"`
 }
 
+type StreamStatusResponse struct {
+	Platform string `json:"platform" example:"douyu"`
+	RoomID   string `json:"room_id" example:"534740"`
+	Status   string `json:"status" example:"online"`
+}
+
+type SupportedPlatformsResponse struct {
+	Platforms []string `json:"platforms" example:"douyu,bilibili"`
+}
+
 func NewLiveStreamHandler(liveStreamService service.LiveStreamService, logger *zap.Logger) *LiveStreamHandler {
 	return &LiveStreamHandler{
 		liveStreamService: liveStreamService,
@@ -29,6 +39,19 @@ func NewLiveStreamHandler(liveStreamService service.LiveStreamService, logger *z
 	}
 }
 
+// GetStreamStatus godoc
+// @Summary      Get Live Stream Status
+// @Description  Get the current status of a live stream room on a specific platform
+// @Tags         Live Streaming
+// @Accept       json
+// @Produce      json
+// @Param        platform path string true "Streaming platform" Enums(douyu, bilibili) example(douyu)
+// @Param        roomId path string true "Room ID" example(534740)
+// @Success      200 {object} StreamStatusResponse "Stream status retrieved successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      404 {object} errors.APIError "Room not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Router       /live-streams/{platform}/rooms/{roomId}/status [get]
 func (h *LiveStreamHandler) GetStreamStatus(c *fiber.Ctx) error {
 	platform := c.Params("platform")
 	roomID := c.Params("roomId")
@@ -73,13 +96,32 @@ func (h *LiveStreamHandler) GetStreamStatus(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(streamInfo)
+	// Create structured response using the defined type
+	response := StreamStatusResponse{
+		Platform: streamInfo.Platform,
+		RoomID:   streamInfo.RoomID,
+		Status:   string(streamInfo.Status),
+	}
+
+	return c.JSON(response)
 }
 
+// GetSupportedPlatforms godoc
+// @Summary      Get Supported Streaming Platforms
+// @Description  Get a list of all supported live streaming platforms
+// @Tags         Live Streaming
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} SupportedPlatformsResponse "List of supported platforms"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Router       /live-streams/platforms [get]
 func (h *LiveStreamHandler) GetSupportedPlatforms(c *fiber.Ctx) error {
 	platforms := h.liveStreamService.GetSupportedPlatforms()
 
-	return c.JSON(fiber.Map{
-		"platforms": platforms,
-	})
+	// Create structured response using the defined type
+	response := SupportedPlatformsResponse{
+		Platforms: platforms,
+	}
+
+	return c.JSON(response)
 }

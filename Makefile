@@ -1,4 +1,4 @@
-.PHONY: help build run test clean dev docker-build docker-run docker-dev format lint vet deps tidy check air install-tools
+.PHONY: help build run test clean dev docker-build docker-run docker-dev format lint vet deps tidy check air install-tools swagger-install swagger-gen swagger-validate swagger-serve
 
 # Variables
 APP_NAME := nebula-live
@@ -114,6 +114,31 @@ install-tools:
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	@echo "$(GREEN)✓ Development tools installed$(RESET)"
 
+## swagger-install: Install Swagger code generation tool
+swagger-install:
+	@echo "$(BLUE)Installing Swagger tools...$(RESET)"
+	@go install github.com/swaggo/swag/cmd/swag@latest
+	@echo "$(GREEN)✓ Swagger tools installed$(RESET)"
+
+## swagger-gen: Generate Swagger documentation
+swagger-gen:
+	@echo "$(BLUE)Generating Swagger documentation...$(RESET)"
+	@swag init -g docs.go --output ./docs
+	@echo "$(GREEN)✓ Swagger documentation generated in ./docs/$(RESET)"
+
+## swagger-validate: Validate Swagger documentation
+swagger-validate:
+	@echo "$(BLUE)Validating Swagger documentation...$(RESET)"
+	@swag init -g docs.go --output ./docs --parseVendor
+	@echo "$(GREEN)✓ Swagger documentation validation completed$(RESET)"
+
+## swagger-serve: Serve Swagger UI locally (requires swagger-ui-dist)
+swagger-serve:
+	@echo "$(BLUE)Starting local Swagger UI server...$(RESET)"
+	@echo "$(YELLOW)Please start the application with 'make run' or 'make dev' first$(RESET)"
+	@echo "$(CYAN)Swagger UI available at: http://localhost:8080/swagger/index.html$(RESET)"
+	@echo "$(CYAN)Swagger JSON available at: http://localhost:8080/swagger/doc.json$(RESET)"
+
 ## docker-build: Build Docker image
 docker-build:
 	@echo "$(BLUE)Building Docker image...$(RESET)"
@@ -205,3 +230,10 @@ info:
 	@echo "  make db-sqlite    # Switch to SQLite"
 	@echo "  make dev          # Start development server"
 	@echo "  make health       # Check health"
+	@echo "  make swagger-gen  # Generate API docs"
+	@echo ""
+	@echo "$(YELLOW)Swagger Commands:$(RESET)"
+	@echo "  make swagger-install   # Install Swagger tools"
+	@echo "  make swagger-gen       # Generate documentation"
+	@echo "  make swagger-validate  # Validate documentation"
+	@echo "  make swagger-serve     # Show Swagger URLs"

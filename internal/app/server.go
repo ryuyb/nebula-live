@@ -12,7 +12,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 	"go.uber.org/zap"
+
+	_ "nebula-live/docs" // swagger docs
 )
 
 type Server struct {
@@ -66,6 +69,15 @@ func NewFiberApp(cfg *config.Config, log *zap.Logger, routerRegistry *router.Rou
 			"version": cfg.App.Version,
 		})
 	})
+
+	// Swagger API 文档
+	app.Get("/swagger", func(c *fiber.Ctx) error {
+		return c.Redirect("/swagger/index.html", fiber.StatusMovedPermanently)
+	})
+	app.Get("/swagger/", func(c *fiber.Ctx) error {
+		return c.Redirect("/swagger/index.html", fiber.StatusMovedPermanently)
+	})
+	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
 	// 设置路由
 	routerRegistry.RegisterAllRoutes(app)

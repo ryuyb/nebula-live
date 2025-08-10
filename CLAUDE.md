@@ -30,6 +30,10 @@ Nebula-live is a modern backend API service built with Go 1.22+, following Domai
 - **Docker**: Containerization with multi-stage builds
 - **Docker Compose**: Local development and production orchestration
 
+### API Documentation
+- **Swagger v3.0**: Interactive API documentation with swaggo/swag
+- **OpenAPI**: Complete API specification with JWT authentication support
+
 ## Development Commands
 
 ### Basic Commands
@@ -43,6 +47,11 @@ Nebula-live is a modern backend API service built with Go 1.22+, following Domai
 ### Development with Hot Reload
 - **Install Air**: `go install github.com/cosmtrek/air@latest`
 - **Start with hot reload**: `air`
+
+### Swagger Documentation Commands
+- **Install Swagger tools**: `go install github.com/swaggo/swag/cmd/swag@latest`
+- **Generate documentation**: `swag init -g docs.go --output ./docs`
+- **Access Swagger UI**: Navigate to `http://localhost:8080/swagger/index.html` after starting the server
 
 ### Docker Commands
 - **Build production**: `docker build -t nebula-live .`
@@ -336,6 +345,11 @@ jwt:
 - **409 Conflict**: Device ID already exists for this provider
 - **500 Internal Server Error**: Failed to send notification or database error
 
+### API Documentation
+- `GET /swagger/index.html` - Interactive Swagger UI
+- `GET /swagger/doc.json` - OpenAPI JSON specification
+- `GET /swagger/swagger.yaml` - OpenAPI YAML specification
+
 ### Health Check
 - `GET /health` - Application health status
 - `GET /api/v1/ping` - API health check
@@ -538,6 +552,7 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 - **deps**: Dependency updates
 - **auth**: Authentication and authorization changes
 - **security**: Security-related improvements
+- **docs**: Documentation changes (Swagger, README)
 - **livestream**: Live streaming platform integrations
 - **push**: Push notification system changes
 
@@ -550,10 +565,12 @@ feat(middleware): add JWT authentication middleware
 feat(livestream): add douyu live streaming platform integration
 feat(livestream): add bilibili live streaming platform integration
 feat(push): add bark push notification system integration
+feat(docs): add Swagger API documentation with authentication support
 fix(livestream): handle room not found error for douyu API
 fix(push): handle bark API error responses correctly
 fix(db): resolve SQLite connection timeout
 docs: update README with Docker instructions
+docs(swagger): add comprehensive API annotations for authentication endpoints
 refactor(domain): extract user validation to service
 perf(db): add indexes to user queries
 chore(deps): update Go dependencies

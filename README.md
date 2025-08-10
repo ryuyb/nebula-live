@@ -19,6 +19,7 @@
 - 🔒 **RBAC 权限控制** - 基于角色的访问控制系统
 - 👥 **角色管理** - 完整的角色和权限管理 API
 - 🔑 **细粒度权限** - 资源级别的权限控制 (resource:action)
+- 📖 **Swagger 文档** - 完整的 API 文档和交互式测试
 
 ## 🏛️ 架构设计
 
@@ -52,6 +53,7 @@ nebula-live/
 | **CLI** | Cobra | v1.8.1 |
 | **JWT认证** | golang-jwt/jwt | v5.3.0 |
 | **密码哈希** | Argon2id | - |
+| **API文档** | Swagger/OpenAPI | v3.0 |
 | **数据库** | PostgreSQL / SQLite | - |
 | **容器化** | Docker | - |
 
@@ -150,6 +152,51 @@ docker-compose --profile postgres --profile redis up
 ```
 
 ## 📚 API 文档
+
+### 📖 Swagger API 文档
+
+项目集成了 Swagger/OpenAPI 3.0 文档，提供完整的 API 文档和交互式测试界面。
+
+#### 访问 Swagger UI
+
+启动应用后，可通过以下地址访问：
+
+- **Swagger UI**: http://localhost:8080/swagger/index.html
+- **JSON 文档**: http://localhost:8080/swagger/doc.json
+- **YAML 文档**: http://localhost:8080/swagger/swagger.yaml
+
+#### 使用 Makefile 管理 Swagger
+
+```bash
+# 安装 Swagger 工具
+make swagger-install
+
+# 生成 API 文档
+make swagger-gen
+
+# 验证文档格式
+make swagger-validate
+
+# 显示 Swagger 访问地址
+make swagger-serve
+```
+
+#### JWT 认证测试
+
+在 Swagger UI 中测试需要认证的 API：
+
+1. 首先调用 `/auth/login` 或 `/auth/register` 获取访问令牌
+2. 点击页面右上角的 **🔒 Authorize** 按钮
+3. 在弹出框中输入：`Bearer {your_access_token}`
+4. 点击 **Authorize** 完成认证
+5. 现在可以测试需要认证的 API 端点
+
+#### 手动生成文档
+
+```bash
+# 使用 swag 命令生成文档
+swag init -g docs.go --output ./docs
+```
 
 ### 健康检查
 ```http

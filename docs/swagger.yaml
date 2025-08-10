@@ -1,0 +1,2131 @@
+basePath: /api/v1
+definitions:
+  dto.CreateUserPushSettingRequest:
+    properties:
+      device_id:
+        maxLength: 255
+        minLength: 1
+        type: string
+      device_name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      provider:
+        enum:
+        - bark
+        type: string
+      settings:
+        additionalProperties: true
+        type: object
+    required:
+    - device_id
+    - device_name
+    - provider
+    type: object
+  dto.ListResponse-dto_UserPushSettingResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.UserPushSettingResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.PushResponse:
+    properties:
+      error:
+        type: string
+      message_id:
+        type: string
+      provider:
+        type: string
+      success:
+        type: boolean
+    type: object
+  dto.UpdateUserPushSettingRequest:
+    properties:
+      device_name:
+        type: string
+      enabled:
+        type: boolean
+      settings:
+        additionalProperties: true
+        type: object
+    type: object
+  dto.UserPushRequest:
+    properties:
+      auto_copy:
+        type: boolean
+      body:
+        maxLength: 1000
+        minLength: 1
+        type: string
+      call:
+        type: boolean
+      group:
+        type: string
+      icon:
+        type: string
+      level:
+        type: string
+      sound:
+        type: string
+      title:
+        maxLength: 200
+        minLength: 1
+        type: string
+      url:
+        type: string
+    required:
+    - body
+    - title
+    type: object
+  dto.UserPushResult:
+    properties:
+      failed_count:
+        type: integer
+      message:
+        type: string
+      provider:
+        type: string
+      responses:
+        items:
+          $ref: '#/definitions/dto.PushResponse'
+        type: array
+      success_count:
+        type: integer
+      total_devices:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  dto.UserPushSettingResponse:
+    properties:
+      created_at:
+        type: string
+      device_id:
+        type: string
+      device_name:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      provider:
+        type: string
+      settings:
+        additionalProperties: true
+        type: object
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  dto.ValidateDeviceRequest:
+    properties:
+      device_id:
+        maxLength: 255
+        minLength: 1
+        type: string
+      provider:
+        enum:
+        - bark
+        type: string
+    required:
+    - device_id
+    - provider
+    type: object
+  errors.APIError:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  handler.AssignPermissionToRoleRequest:
+    properties:
+      role_id:
+        minimum: 1
+        type: integer
+    required:
+    - role_id
+    type: object
+  handler.AssignRoleRequest:
+    properties:
+      user_id:
+        minimum: 1
+        type: integer
+    required:
+    - user_id
+    type: object
+  handler.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: integer
+      message:
+        type: string
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+      user:
+        $ref: '#/definitions/handler.UserResponse'
+    type: object
+  handler.CreatePermissionRequest:
+    properties:
+      action:
+        maxLength: 50
+        minLength: 2
+        type: string
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      resource:
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - action
+    - display_name
+    - name
+    - resource
+    type: object
+  handler.CreateRoleRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - display_name
+    - name
+    type: object
+  handler.CreateUserRequest:
+    properties:
+      email:
+        maxLength: 100
+        type: string
+      nickname:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 100
+        minLength: 6
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  handler.ListPermissionsResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      permissions:
+        items:
+          $ref: '#/definitions/handler.PermissionResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  handler.ListRolesResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      roles:
+        items:
+          $ref: '#/definitions/handler.RoleResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  handler.ListUsersResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/handler.UserResponse'
+        type: array
+    type: object
+  handler.LoginRequest:
+    properties:
+      password:
+        maxLength: 100
+        minLength: 6
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.PermissionResponse:
+    properties:
+      action:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      is_system:
+        type: boolean
+      name:
+        type: string
+      resource:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  handler.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  handler.RegisterRequest:
+    properties:
+      email:
+        maxLength: 100
+        type: string
+      nickname:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 100
+        minLength: 6
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  handler.RoleResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      is_system:
+        type: boolean
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  handler.StreamStatusResponse:
+    properties:
+      platform:
+        example: douyu
+        type: string
+      room_id:
+        example: "534740"
+        type: string
+      status:
+        example: online
+        type: string
+    type: object
+  handler.SupportedPlatformsResponse:
+    properties:
+      platforms:
+        example:
+        - douyu
+        - bilibili
+        items:
+          type: string
+        type: array
+    type: object
+  handler.UpdatePermissionRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - display_name
+    type: object
+  handler.UpdateRoleRequest:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      display_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - display_name
+    type: object
+  handler.UpdateUserRequest:
+    properties:
+      avatar:
+        maxLength: 500
+        type: string
+      nickname:
+        maxLength: 100
+        type: string
+    type: object
+  handler.UserResponse:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@nebula-live.com
+    name: API Support
+  description: Nebula Live is a modern backend API service built with Go, following
+    Domain-Driven Design (DDD) principles and Clean Architecture.
+  license:
+    name: MIT
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Nebula Live API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with username and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Authentication failed
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "403":
+          description: Account banned or inactive
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: User Login
+      tags:
+      - Authentication
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get authenticated user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User retrieved successfully
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get Current User
+      tags:
+      - Authentication
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Use refresh token to get a new access token
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: refreshToken
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token refreshed successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Invalid refresh token
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Refresh Access Token
+      tags:
+      - Authentication
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: User registration information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Registration successful
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: User Registration
+      tags:
+      - Authentication
+  /live-streams/{platform}/rooms/{roomId}/status:
+    get:
+      consumes:
+      - application/json
+      description: Get the current status of a live stream room on a specific platform
+      parameters:
+      - description: Streaming platform
+        enum:
+        - douyu
+        - bilibili
+        example: douyu
+        in: path
+        name: platform
+        required: true
+        type: string
+      - description: Room ID
+        example: "534740"
+        in: path
+        name: roomId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Stream status retrieved successfully
+          schema:
+            $ref: '#/definitions/handler.StreamStatusResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Room not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Get Live Stream Status
+      tags:
+      - Live Streaming
+  /live-streams/platforms:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all supported live streaming platforms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of supported platforms
+          schema:
+            $ref: '#/definitions/handler.SupportedPlatformsResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Get Supported Streaming Platforms
+      tags:
+      - Live Streaming
+  /permissions:
+    get:
+      consumes:
+      - application/json
+      description: Get list of permissions with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of permissions
+          schema:
+            $ref: '#/definitions/handler.ListPermissionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: List Permissions
+      tags:
+      - RBAC Permission Management
+    post:
+      consumes:
+      - application/json
+      description: Create a new permission in the system
+      parameters:
+      - description: Permission creation data
+        in: body
+        name: permission
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreatePermissionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Permission created successfully
+          schema:
+            $ref: '#/definitions/handler.PermissionResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: Permission already exists
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Create Permission
+      tags:
+      - RBAC Permission Management
+  /permissions/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a permission from the system
+      parameters:
+      - description: Permission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Permission deleted successfully
+        "400":
+          description: Invalid permission ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "403":
+          description: Cannot delete system permission
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Permission not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Delete Permission
+      tags:
+      - RBAC Permission Management
+    get:
+      consumes:
+      - application/json
+      description: Get permission information by ID
+      parameters:
+      - description: Permission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Permission retrieved successfully
+          schema:
+            $ref: '#/definitions/handler.PermissionResponse'
+        "400":
+          description: Invalid permission ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Permission not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get Permission
+      tags:
+      - RBAC Permission Management
+    put:
+      consumes:
+      - application/json
+      description: Update permission information
+      parameters:
+      - description: Permission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Permission update data
+        in: body
+        name: permission
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdatePermissionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Permission updated successfully
+          schema:
+            $ref: '#/definitions/handler.PermissionResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Permission not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Update Permission
+      tags:
+      - RBAC Permission Management
+  /permissions/{id}/assign:
+    post:
+      consumes:
+      - application/json
+      description: Assign a permission to a role
+      parameters:
+      - description: Permission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Role assignment data
+        in: body
+        name: assignment
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AssignPermissionToRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Permission assigned successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Permission or role not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: Permission already assigned
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Assign Permission to Role
+      tags:
+      - RBAC Permission Management
+  /permissions/{id}/roles/{roleId}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a permission from a role
+      parameters:
+      - description: Permission ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Role ID
+        in: path
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Permission removed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Permission, role or role permission not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Remove Permission from Role
+      tags:
+      - RBAC Permission Management
+  /permissions/roles/{roleId}:
+    get:
+      consumes:
+      - application/json
+      description: Get all permissions assigned to a role
+      parameters:
+      - description: Role ID
+        in: path
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of role permissions
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/handler.PermissionResponse'
+              type: array
+            type: object
+        "400":
+          description: Invalid role ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Role not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get Role Permissions
+      tags:
+      - RBAC Permission Management
+  /permissions/users/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Get all permissions for a user (through assigned roles)
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user permissions
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/handler.PermissionResponse'
+              type: array
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get User Permissions
+      tags:
+      - RBAC Permission Management
+  /push-settings:
+    get:
+      consumes:
+      - application/json
+      description: Get current user's push notification settings with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by provider
+        enum:
+        - bark
+        in: query
+        name: provider
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user's push settings
+          schema:
+            $ref: '#/definitions/dto.ListResponse-dto_UserPushSettingResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get Push Settings
+      tags:
+      - Push Settings
+    post:
+      consumes:
+      - application/json
+      description: Create a new push notification setting for current user
+      parameters:
+      - description: Push setting creation data
+        in: body
+        name: setting
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserPushSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Push setting created successfully
+          schema:
+            $ref: '#/definitions/dto.UserPushSettingResponse'
+        "400":
+          description: Invalid request parameters or validation failed
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: Device already exists
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Create Push Setting
+      tags:
+      - Push Settings
+  /push-settings/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a push notification setting
+      parameters:
+      - description: Push setting ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Push setting deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid setting ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Push setting not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Delete Push Setting
+      tags:
+      - Push Settings
+    get:
+      consumes:
+      - application/json
+      description: Get a specific push notification setting by ID
+      parameters:
+      - description: Push setting ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Push setting retrieved successfully
+          schema:
+            $ref: '#/definitions/dto.UserPushSettingResponse'
+        "400":
+          description: Invalid setting ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Push setting not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get Push Setting
+      tags:
+      - Push Settings
+    put:
+      consumes:
+      - application/json
+      description: Update a push notification setting
+      parameters:
+      - description: Push setting ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Push setting update data
+        in: body
+        name: setting
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserPushSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Push setting updated successfully
+          schema:
+            $ref: '#/definitions/dto.UserPushSettingResponse'
+        "400":
+          description: Invalid request parameters or validation failed
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Push setting not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Update Push Setting
+      tags:
+      - Push Settings
+  /push-settings/{id}/disable:
+    post:
+      consumes:
+      - application/json
+      description: Disable a push notification setting
+      parameters:
+      - description: Push setting ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Push setting disabled successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid setting ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Push setting not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Disable Push Setting
+      tags:
+      - Push Settings
+  /push-settings/{id}/enable:
+    post:
+      consumes:
+      - application/json
+      description: Enable a push notification setting
+      parameters:
+      - description: Push setting ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Push setting enabled successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid setting ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Push setting not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Enable Push Setting
+      tags:
+      - Push Settings
+  /push-settings/providers:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all supported push notification providers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of supported providers with configuration options
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Supported Push Providers
+      tags:
+      - Push Settings
+  /push-settings/validate-device:
+    post:
+      consumes:
+      - application/json
+      description: Validate if a device ID is available for registration
+      parameters:
+      - description: Device validation data
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ValidateDeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Device ID is available
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request parameters or validation failed
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: Device ID already exists
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      summary: Validate Device ID
+      tags:
+      - Push Settings
+  /push/my-devices:
+    post:
+      consumes:
+      - application/json
+      description: Send push notification to current user's all enabled devices
+      parameters:
+      - description: Push notification data
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserPushRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Push notification sent successfully
+          schema:
+            $ref: '#/definitions/dto.UserPushResult'
+        "400":
+          description: Invalid request parameters or validation failed
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Send Push to My Devices
+      tags:
+      - Push Notifications
+  /push/my-devices/{provider}:
+    post:
+      consumes:
+      - application/json
+      description: Send push notification to current user's devices for specific provider
+      parameters:
+      - description: Push provider name
+        enum:
+        - bark
+        example: bark
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: Push notification data
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserPushRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Push notification sent successfully
+          schema:
+            $ref: '#/definitions/dto.UserPushResult'
+        "400":
+          description: Invalid request parameters or validation failed
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Send Push to My Devices by Provider
+      tags:
+      - Push Notifications
+  /push/test:
+    post:
+      consumes:
+      - application/json
+      description: Send a test push notification to current user's all enabled devices
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Test notification sent successfully
+          schema:
+            $ref: '#/definitions/dto.UserPushResult'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Test Push Settings
+      tags:
+      - Push Notifications
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: Get list of roles with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of roles
+          schema:
+            $ref: '#/definitions/handler.ListRolesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: List Roles
+      tags:
+      - RBAC Role Management
+    post:
+      consumes:
+      - application/json
+      description: Create a new role in the system
+      parameters:
+      - description: Role creation data
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Role created successfully
+          schema:
+            $ref: '#/definitions/handler.RoleResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: Role already exists
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Create Role
+      tags:
+      - RBAC Role Management
+  /roles/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a role from the system
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Role deleted successfully
+        "400":
+          description: Invalid role ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "403":
+          description: Cannot delete system role
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Role not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Delete Role
+      tags:
+      - RBAC Role Management
+    get:
+      consumes:
+      - application/json
+      description: Get role information by ID
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role retrieved successfully
+          schema:
+            $ref: '#/definitions/handler.RoleResponse'
+        "400":
+          description: Invalid role ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Role not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get Role
+      tags:
+      - RBAC Role Management
+    put:
+      consumes:
+      - application/json
+      description: Update role information
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Role update data
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role updated successfully
+          schema:
+            $ref: '#/definitions/handler.RoleResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Role not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Update Role
+      tags:
+      - RBAC Role Management
+  /roles/{id}/assign:
+    post:
+      consumes:
+      - application/json
+      description: Assign a role to a user
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User assignment data
+        in: body
+        name: assignment
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AssignRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role assigned successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Role or user not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: Role already assigned
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Assign Role to User
+      tags:
+      - RBAC Role Management
+  /roles/{id}/users/{userId}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a role from a user
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role removed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: Role, user or user role not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Remove Role from User
+      tags:
+      - RBAC Role Management
+  /roles/users/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Get all roles assigned to a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user roles
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/handler.RoleResponse'
+              type: array
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get User Roles
+      tags:
+      - RBAC Role Management
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get list of users with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users
+          schema:
+            $ref: '#/definitions/handler.ListUsersResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: List Users
+      tags:
+      - User Management
+    post:
+      consumes:
+      - application/json
+      description: Create a new user in the system
+      parameters:
+      - description: User creation data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Create User
+      tags:
+      - User Management
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user from the system
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User deleted successfully
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Delete User
+      tags:
+      - User Management
+    get:
+      consumes:
+      - application/json
+      description: Get user information by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User retrieved successfully
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Get User
+      tags:
+      - User Management
+    put:
+      consumes:
+      - application/json
+      description: Update user information
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User update data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User updated successfully
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Update User
+      tags:
+      - User Management
+  /users/{id}/activate:
+    post:
+      consumes:
+      - application/json
+      description: Activate a user account
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User activated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Activate User
+      tags:
+      - User Management
+  /users/{id}/ban:
+    post:
+      consumes:
+      - application/json
+      description: Ban a user account
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User banned successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Ban User
+      tags:
+      - User Management
+  /users/{id}/deactivate:
+    post:
+      consumes:
+      - application/json
+      description: Deactivate a user account
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deactivated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/errors.APIError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/errors.APIError'
+      security:
+      - Bearer: []
+      summary: Deactivate User
+      tags:
+      - User Management
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

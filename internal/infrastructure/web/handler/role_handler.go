@@ -64,7 +64,20 @@ type ListRolesResponse struct {
 	Limit int            `json:"limit"`
 }
 
-// CreateRole 创建角色
+// CreateRole godoc
+// @Summary      Create Role
+// @Description  Create a new role in the system
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        role body CreateRoleRequest true "Role creation data"
+// @Success      201 {object} RoleResponse "Role created successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      409 {object} errors.APIError "Role already exists"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles [post]
 func (h *RoleHandler) CreateRole(c *fiber.Ctx) error {
 	var req CreateRoleRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -98,7 +111,20 @@ func (h *RoleHandler) CreateRole(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetRole 获取角色信息
+// GetRole godoc
+// @Summary      Get Role
+// @Description  Get role information by ID
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Role ID"
+// @Success      200 {object} RoleResponse "Role retrieved successfully"
+// @Failure      400 {object} errors.APIError "Invalid role ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Role not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles/{id} [get]
 func (h *RoleHandler) GetRole(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -129,7 +155,21 @@ func (h *RoleHandler) GetRole(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// UpdateRole 更新角色信息
+// UpdateRole godoc
+// @Summary      Update Role
+// @Description  Update role information
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Role ID"
+// @Param        role body UpdateRoleRequest true "Role update data"
+// @Success      200 {object} RoleResponse "Role updated successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Role not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles/{id} [put]
 func (h *RoleHandler) UpdateRole(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -166,7 +206,21 @@ func (h *RoleHandler) UpdateRole(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// DeleteRole 删除角色
+// DeleteRole godoc
+// @Summary      Delete Role
+// @Description  Delete a role from the system
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Role ID"
+// @Success      204 "Role deleted successfully"
+// @Failure      400 {object} errors.APIError "Invalid role ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      403 {object} errors.APIError "Cannot delete system role"
+// @Failure      404 {object} errors.APIError "Role not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles/{id} [delete]
 func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -189,7 +243,19 @@ func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusNoContent).Send(nil)
 }
 
-// ListRoles 获取角色列表
+// ListRoles godoc
+// @Summary      List Roles
+// @Description  Get list of roles with pagination
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number" default(1)
+// @Param        limit query int false "Items per page" default(10)
+// @Success      200 {object} ListRolesResponse "List of roles"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles [get]
 func (h *RoleHandler) ListRoles(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
@@ -232,7 +298,22 @@ func (h *RoleHandler) ListRoles(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// AssignRole 为用户分配角色
+// AssignRole godoc
+// @Summary      Assign Role to User
+// @Description  Assign a role to a user
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Role ID"
+// @Param        assignment body AssignRoleRequest true "User assignment data"
+// @Success      200 {object} map[string]string "Role assigned successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Role or user not found"
+// @Failure      409 {object} errors.APIError "Role already assigned"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles/{id}/assign [post]
 func (h *RoleHandler) AssignRole(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	roleID, err := strconv.ParseUint(idStr, 10, 32)
@@ -280,7 +361,21 @@ func (h *RoleHandler) AssignRole(c *fiber.Ctx) error {
 	})
 }
 
-// RemoveRole 移除用户角色
+// RemoveRole godoc
+// @Summary      Remove Role from User
+// @Description  Remove a role from a user
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Role ID"
+// @Param        userId path int true "User ID"
+// @Success      200 {object} map[string]string "Role removed successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Role, user or user role not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles/{id}/users/{userId} [delete]
 func (h *RoleHandler) RemoveRole(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	roleID, err := strconv.ParseUint(idStr, 10, 32)
@@ -322,7 +417,20 @@ func (h *RoleHandler) RemoveRole(c *fiber.Ctx) error {
 	})
 }
 
-// GetUserRoles 获取用户的所有角色
+// GetUserRoles godoc
+// @Summary      Get User Roles
+// @Description  Get all roles assigned to a user
+// @Tags         RBAC Role Management
+// @Accept       json
+// @Produce      json
+// @Param        userId path int true "User ID"
+// @Success      200 {object} map[string][]RoleResponse "List of user roles"
+// @Failure      400 {object} errors.APIError "Invalid user ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /roles/users/{userId} [get]
 func (h *RoleHandler) GetUserRoles(c *fiber.Ctx) error {
 	userIDStr := c.Params("userId")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)

@@ -66,7 +66,20 @@ type ListPermissionsResponse struct {
 	Limit       int                  `json:"limit"`
 }
 
-// CreatePermission 创建权限
+// CreatePermission godoc
+// @Summary      Create Permission
+// @Description  Create a new permission in the system
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        permission body CreatePermissionRequest true "Permission creation data"
+// @Success      201 {object} PermissionResponse "Permission created successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      409 {object} errors.APIError "Permission already exists"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions [post]
 func (h *PermissionHandler) CreatePermission(c *fiber.Ctx) error {
 	var req CreatePermissionRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -102,7 +115,20 @@ func (h *PermissionHandler) CreatePermission(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetPermission 获取权限信息
+// GetPermission godoc
+// @Summary      Get Permission
+// @Description  Get permission information by ID
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Permission ID"
+// @Success      200 {object} PermissionResponse "Permission retrieved successfully"
+// @Failure      400 {object} errors.APIError "Invalid permission ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Permission not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions/{id} [get]
 func (h *PermissionHandler) GetPermission(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -135,7 +161,21 @@ func (h *PermissionHandler) GetPermission(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// UpdatePermission 更新权限信息
+// UpdatePermission godoc
+// @Summary      Update Permission
+// @Description  Update permission information
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Permission ID"
+// @Param        permission body UpdatePermissionRequest true "Permission update data"
+// @Success      200 {object} PermissionResponse "Permission updated successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Permission not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions/{id} [put]
 func (h *PermissionHandler) UpdatePermission(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -174,7 +214,21 @@ func (h *PermissionHandler) UpdatePermission(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// DeletePermission 删除权限
+// DeletePermission godoc
+// @Summary      Delete Permission
+// @Description  Delete a permission from the system
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Permission ID"
+// @Success      204 "Permission deleted successfully"
+// @Failure      400 {object} errors.APIError "Invalid permission ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      403 {object} errors.APIError "Cannot delete system permission"
+// @Failure      404 {object} errors.APIError "Permission not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions/{id} [delete]
 func (h *PermissionHandler) DeletePermission(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -197,7 +251,19 @@ func (h *PermissionHandler) DeletePermission(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusNoContent).Send(nil)
 }
 
-// ListPermissions 获取权限列表
+// ListPermissions godoc
+// @Summary      List Permissions
+// @Description  Get list of permissions with pagination
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number" default(1)
+// @Param        limit query int false "Items per page" default(10)
+// @Success      200 {object} ListPermissionsResponse "List of permissions"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions [get]
 func (h *PermissionHandler) ListPermissions(c *fiber.Ctx) error {
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 10)
@@ -242,7 +308,22 @@ func (h *PermissionHandler) ListPermissions(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// AssignPermissionToRole 为角色分配权限
+// AssignPermissionToRole godoc
+// @Summary      Assign Permission to Role
+// @Description  Assign a permission to a role
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Permission ID"
+// @Param        assignment body AssignPermissionToRoleRequest true "Role assignment data"
+// @Success      200 {object} map[string]string "Permission assigned successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Permission or role not found"
+// @Failure      409 {object} errors.APIError "Permission already assigned"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions/{id}/assign [post]
 func (h *PermissionHandler) AssignPermissionToRole(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	permissionID, err := strconv.ParseUint(idStr, 10, 32)
@@ -297,7 +378,21 @@ func (h *PermissionHandler) AssignPermissionToRole(c *fiber.Ctx) error {
 	})
 }
 
-// RemovePermissionFromRole 移除角色的权限
+// RemovePermissionFromRole godoc
+// @Summary      Remove Permission from Role
+// @Description  Remove a permission from a role
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Permission ID"
+// @Param        roleId path int true "Role ID"
+// @Success      200 {object} map[string]string "Permission removed successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Permission, role or role permission not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions/{id}/roles/{roleId} [delete]
 func (h *PermissionHandler) RemovePermissionFromRole(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	permissionID, err := strconv.ParseUint(idStr, 10, 32)
@@ -346,7 +441,20 @@ func (h *PermissionHandler) RemovePermissionFromRole(c *fiber.Ctx) error {
 	})
 }
 
-// GetRolePermissions 获取角色的所有权限
+// GetRolePermissions godoc
+// @Summary      Get Role Permissions
+// @Description  Get all permissions assigned to a role
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        roleId path int true "Role ID"
+// @Success      200 {object} map[string][]PermissionResponse "List of role permissions"
+// @Failure      400 {object} errors.APIError "Invalid role ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Role not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions/roles/{roleId} [get]
 func (h *PermissionHandler) GetRolePermissions(c *fiber.Ctx) error {
 	roleIDStr := c.Params("roleId")
 	roleID, err := strconv.ParseUint(roleIDStr, 10, 32)
@@ -390,7 +498,19 @@ func (h *PermissionHandler) GetRolePermissions(c *fiber.Ctx) error {
 	})
 }
 
-// GetUserPermissions 获取用户的所有权限
+// GetUserPermissions godoc
+// @Summary      Get User Permissions
+// @Description  Get all permissions for a user (through assigned roles)
+// @Tags         RBAC Permission Management
+// @Accept       json
+// @Produce      json
+// @Param        userId path int true "User ID"
+// @Success      200 {object} map[string][]PermissionResponse "List of user permissions"
+// @Failure      400 {object} errors.APIError "Invalid user ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /permissions/users/{userId} [get]
 func (h *PermissionHandler) GetUserPermissions(c *fiber.Ctx) error {
 	userIDStr := c.Params("userId")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)

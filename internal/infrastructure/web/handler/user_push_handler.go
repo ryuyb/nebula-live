@@ -24,8 +24,19 @@ func NewUserPushHandler(pushService service.PushService) *UserPushHandler {
 	}
 }
 
-// SendToMyDevices 发送推送到当前用户的所有设备
-// POST /api/v1/push/my-devices
+// SendToMyDevices godoc
+// @Summary      Send Push to My Devices
+// @Description  Send push notification to current user's all enabled devices
+// @Tags         Push Notifications
+// @Accept       json
+// @Produce      json
+// @Param        notification body dto.UserPushRequest true "Push notification data"
+// @Success      200 {object} dto.UserPushResult "Push notification sent successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters or validation failed"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push/my-devices [post]
 func (h *UserPushHandler) SendToMyDevices(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -99,8 +110,20 @@ func (h *UserPushHandler) SendToMyDevices(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// SendToMyDevicesByProvider 发送推送到当前用户指定提供商的设备
-// POST /api/v1/push/my-devices/:provider
+// SendToMyDevicesByProvider godoc
+// @Summary      Send Push to My Devices by Provider
+// @Description  Send push notification to current user's devices for specific provider
+// @Tags         Push Notifications
+// @Accept       json
+// @Produce      json
+// @Param        provider path string true "Push provider name" Enums(bark) example(bark)
+// @Param        notification body dto.UserPushRequest true "Push notification data"
+// @Success      200 {object} dto.UserPushResult "Push notification sent successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters or validation failed"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push/my-devices/{provider} [post]
 func (h *UserPushHandler) SendToMyDevicesByProvider(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -183,8 +206,17 @@ func (h *UserPushHandler) SendToMyDevicesByProvider(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
-// TestMyPushSettings 测试当前用户的推送设置
-// POST /api/v1/push/test
+// TestMyPushSettings godoc
+// @Summary      Test Push Settings
+// @Description  Send a test push notification to current user's all enabled devices
+// @Tags         Push Notifications
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dto.UserPushResult "Test notification sent successfully"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push/test [post]
 func (h *UserPushHandler) TestMyPushSettings(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {

@@ -58,7 +58,20 @@ type ListUsersResponse struct {
 	Limit int            `json:"limit"`
 }
 
-// CreateUser 创建用户
+// CreateUser godoc
+// @Summary      Create User
+// @Description  Create a new user in the system
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        user body CreateUserRequest true "User creation data"
+// @Success      201 {object} UserResponse "User created successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      409 {object} errors.APIError "User already exists"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	var req CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -93,7 +106,20 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetUser 获取用户信息
+// GetUser godoc
+// @Summary      Get User
+// @Description  Get user information by ID
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "User ID"
+// @Success      200 {object} UserResponse "User retrieved successfully"
+// @Failure      400 {object} errors.APIError "Invalid user ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users/{id} [get]
 func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -125,7 +151,21 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// UpdateUser 更新用户信息
+// UpdateUser godoc
+// @Summary      Update User
+// @Description  Update user information
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "User ID"
+// @Param        user body UpdateUserRequest true "User update data"
+// @Success      200 {object} UserResponse "User updated successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users/{id} [put]
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -177,7 +217,20 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// DeleteUser 删除用户
+// DeleteUser godoc
+// @Summary      Delete User
+// @Description  Delete a user from the system
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "User ID"
+// @Success      204 "User deleted successfully"
+// @Failure      400 {object} errors.APIError "Invalid user ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -197,7 +250,19 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusNoContent).Send(nil)
 }
 
-// ListUsers 获取用户列表
+// ListUsers godoc
+// @Summary      List Users
+// @Description  Get list of users with pagination
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number" default(1)
+// @Param        limit query int false "Items per page" default(10)
+// @Success      200 {object} ListUsersResponse "List of users"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users [get]
 func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 	// 解析分页参数
 	page := c.QueryInt("page", 1)
@@ -250,7 +315,20 @@ func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// ActivateUser 激活用户
+// ActivateUser godoc
+// @Summary      Activate User
+// @Description  Activate a user account
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "User ID"
+// @Success      200 {object} map[string]string "User activated successfully"
+// @Failure      400 {object} errors.APIError "Invalid user ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users/{id}/activate [post]
 func (h *UserHandler) ActivateUser(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -272,7 +350,20 @@ func (h *UserHandler) ActivateUser(c *fiber.Ctx) error {
 	})
 }
 
-// DeactivateUser 停用用户
+// DeactivateUser godoc
+// @Summary      Deactivate User
+// @Description  Deactivate a user account
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "User ID"
+// @Success      200 {object} map[string]string "User deactivated successfully"
+// @Failure      400 {object} errors.APIError "Invalid user ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users/{id}/deactivate [post]
 func (h *UserHandler) DeactivateUser(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -294,7 +385,20 @@ func (h *UserHandler) DeactivateUser(c *fiber.Ctx) error {
 	})
 }
 
-// BanUser 禁用用户
+// BanUser godoc
+// @Summary      Ban User
+// @Description  Ban a user account
+// @Tags         User Management
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "User ID"
+// @Success      200 {object} map[string]string "User banned successfully"
+// @Failure      400 {object} errors.APIError "Invalid user ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /users/{id}/ban [post]
 func (h *UserHandler) BanUser(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)

@@ -58,7 +58,18 @@ type AuthResponse struct {
 	Message      string       `json:"message"`
 }
 
-// Register 用户注册
+// Register godoc
+// @Summary      User Registration
+// @Description  Create a new user account
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        user body RegisterRequest true "User registration information"
+// @Success      201 {object} AuthResponse "Registration successful"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      409 {object} errors.APIError "User already exists"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req RegisterRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -98,7 +109,19 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-// Login 用户登录
+// Login godoc
+// @Summary      User Login
+// @Description  Authenticate user with username and password
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        credentials body LoginRequest true "Login credentials"
+// @Success      200 {object} AuthResponse "Login successful"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Authentication failed"
+// @Failure      403 {object} errors.APIError "Account banned or inactive"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req LoginRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -158,7 +181,18 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-// GetCurrentUser 获取当前用户信息
+// GetCurrentUser godoc
+// @Summary      Get Current User
+// @Description  Get authenticated user information
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Security     Bearer
+// @Success      200 {object} UserResponse "User retrieved successfully"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "User not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Router       /auth/me [get]
 func (h *AuthHandler) GetCurrentUser(c *fiber.Ctx) error {
 	// 从上下文中获取当前用户信息
 	currentUser, exists := auth.GetCurrentUser(c)
@@ -193,11 +227,24 @@ func (h *AuthHandler) GetCurrentUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(userResponse)
 }
 
-// RefreshToken 刷新访问令牌
+// RefreshRequest 刷新令牌请求
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+// RefreshToken godoc
+// @Summary      Refresh Access Token
+// @Description  Use refresh token to get a new access token
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        refreshToken body RefreshRequest true "Refresh token request"
+// @Success      200 {object} map[string]interface{} "Token refreshed successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters"
+// @Failure      401 {object} errors.APIError "Invalid refresh token"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Router       /auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
-	type RefreshRequest struct {
-		RefreshToken string `json:"refresh_token" validate:"required"`
-	}
 
 	var req RefreshRequest
 	if err := c.BodyParser(&req); err != nil {

@@ -24,8 +24,20 @@ func NewUserPushSettingHandler(userPushSettingService service.UserPushSettingSer
 	}
 }
 
-// CreateSetting 创建用户推送设置
-// POST /api/v1/push-settings
+// CreateSetting godoc
+// @Summary      Create Push Setting
+// @Description  Create a new push notification setting for current user
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        setting body dto.CreateUserPushSettingRequest true "Push setting creation data"
+// @Success      201 {object} dto.UserPushSettingResponse "Push setting created successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters or validation failed"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      409 {object} errors.APIError "Device already exists"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push-settings [post]
 func (h *UserPushSettingHandler) CreateSetting(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -93,8 +105,20 @@ func (h *UserPushSettingHandler) CreateSetting(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-// GetSettings 获取当前用户的推送设置列表
-// GET /api/v1/push-settings
+// GetSettings godoc
+// @Summary      Get Push Settings
+// @Description  Get current user's push notification settings with pagination
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        page query int false "Page number" default(1)
+// @Param        limit query int false "Items per page" default(10)
+// @Param        provider query string false "Filter by provider" Enums(bark)
+// @Success      200 {object} dto.ListResponse[dto.UserPushSettingResponse] "List of user's push settings"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push-settings [get]
 func (h *UserPushSettingHandler) GetSettings(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -178,8 +202,20 @@ func (h *UserPushSettingHandler) GetSettings(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// GetSetting 获取指定的推送设置
-// GET /api/v1/push-settings/:id
+// GetSetting godoc
+// @Summary      Get Push Setting
+// @Description  Get a specific push notification setting by ID
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Push setting ID"
+// @Success      200 {object} dto.UserPushSettingResponse "Push setting retrieved successfully"
+// @Failure      400 {object} errors.APIError "Invalid setting ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Push setting not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push-settings/{id} [get]
 func (h *UserPushSettingHandler) GetSetting(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -229,8 +265,21 @@ func (h *UserPushSettingHandler) GetSetting(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// UpdateSetting 更新推送设置
-// PUT /api/v1/push-settings/:id
+// UpdateSetting godoc
+// @Summary      Update Push Setting
+// @Description  Update a push notification setting
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Push setting ID"
+// @Param        setting body dto.UpdateUserPushSettingRequest true "Push setting update data"
+// @Success      200 {object} dto.UserPushSettingResponse "Push setting updated successfully"
+// @Failure      400 {object} errors.APIError "Invalid request parameters or validation failed"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Push setting not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push-settings/{id} [put]
 func (h *UserPushSettingHandler) UpdateSetting(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -312,8 +361,20 @@ func (h *UserPushSettingHandler) UpdateSetting(c *fiber.Ctx) error {
 	return c.JSON(response)
 }
 
-// EnableSetting 启用推送设置
-// POST /api/v1/push-settings/:id/enable
+// EnableSetting godoc
+// @Summary      Enable Push Setting
+// @Description  Enable a push notification setting
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Push setting ID"
+// @Success      200 {object} map[string]string "Push setting enabled successfully"
+// @Failure      400 {object} errors.APIError "Invalid setting ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Push setting not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push-settings/{id}/enable [post]
 func (h *UserPushSettingHandler) EnableSetting(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -353,8 +414,20 @@ func (h *UserPushSettingHandler) EnableSetting(c *fiber.Ctx) error {
 	})
 }
 
-// DisableSetting 禁用推送设置
-// POST /api/v1/push-settings/:id/disable
+// DisableSetting godoc
+// @Summary      Disable Push Setting
+// @Description  Disable a push notification setting
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Push setting ID"
+// @Success      200 {object} map[string]string "Push setting disabled successfully"
+// @Failure      400 {object} errors.APIError "Invalid setting ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Push setting not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push-settings/{id}/disable [post]
 func (h *UserPushSettingHandler) DisableSetting(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -394,8 +467,20 @@ func (h *UserPushSettingHandler) DisableSetting(c *fiber.Ctx) error {
 	})
 }
 
-// DeleteSetting 删除推送设置
-// DELETE /api/v1/push-settings/:id
+// DeleteSetting godoc
+// @Summary      Delete Push Setting
+// @Description  Delete a push notification setting
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        id path int true "Push setting ID"
+// @Success      200 {object} map[string]string "Push setting deleted successfully"
+// @Failure      400 {object} errors.APIError "Invalid setting ID"
+// @Failure      401 {object} errors.APIError "Unauthorized"
+// @Failure      404 {object} errors.APIError "Push setting not found"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Security     Bearer
+// @Router       /push-settings/{id} [delete]
 func (h *UserPushSettingHandler) DeleteSetting(c *fiber.Ctx) error {
 	userID, exists := auth.GetCurrentUserID(c)
 	if !exists {
@@ -435,8 +520,14 @@ func (h *UserPushSettingHandler) DeleteSetting(c *fiber.Ctx) error {
 	})
 }
 
-// GetSupportedProviders 获取支持的推送提供商列表
-// GET /api/v1/push-settings/providers
+// GetSupportedProviders godoc
+// @Summary      Get Supported Push Providers
+// @Description  Get list of all supported push notification providers
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} map[string]interface{} "List of supported providers with configuration options"
+// @Router       /push-settings/providers [get]
 func (h *UserPushSettingHandler) GetSupportedProviders(c *fiber.Ctx) error {
 	// 返回支持的推送提供商列表
 	providers := []fiber.Map{
@@ -463,8 +554,18 @@ func (h *UserPushSettingHandler) GetSupportedProviders(c *fiber.Ctx) error {
 	})
 }
 
-// ValidateDevice 验证设备ID是否可用
-// POST /api/v1/push-settings/validate-device
+// ValidateDevice godoc
+// @Summary      Validate Device ID
+// @Description  Validate if a device ID is available for registration
+// @Tags         Push Settings
+// @Accept       json
+// @Produce      json
+// @Param        device body dto.ValidateDeviceRequest true "Device validation data"
+// @Success      200 {object} map[string]interface{} "Device ID is available"
+// @Failure      400 {object} errors.APIError "Invalid request parameters or validation failed"
+// @Failure      409 {object} errors.APIError "Device ID already exists"
+// @Failure      500 {object} errors.APIError "Internal server error"
+// @Router       /push-settings/validate-device [post]
 func (h *UserPushSettingHandler) ValidateDevice(c *fiber.Ctx) error {
 	var req dto.ValidateDeviceRequest
 	if err := c.BodyParser(&req); err != nil {
