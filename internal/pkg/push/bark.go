@@ -3,7 +3,9 @@ package push
 import (
 	"context"
 	"fmt"
+	"nebula-live/pkg/logger"
 
+	"go.uber.org/zap"
 	"resty.dev/v3"
 )
 
@@ -22,19 +24,18 @@ type BarkConfig struct {
 
 // barkRequest represents the Bark API request payload
 type barkRequest struct {
-	Body      string `json:"body"`
-	DeviceKey string `json:"device_key"`
-	Title     string `json:"title,omitempty"`
-	Subtitle  string `json:"subtitle,omitempty"`
-	Badge     int    `json:"badge,omitempty"`
-	Sound     string `json:"sound,omitempty"`
-	Icon      string `json:"icon,omitempty"`
-	Group     string `json:"group,omitempty"`
-	URL       string `json:"url,omitempty"`
-	Level     string `json:"level,omitempty"`
-	Call      string `json:"call,omitempty"`
-	AutoCopy  string `json:"autoCopy,omitempty"`
-	Copy      string `json:"copy,omitempty"`
+	Body     string `json:"body"`
+	Title    string `json:"title,omitempty"`
+	Subtitle string `json:"subtitle,omitempty"`
+	Badge    int    `json:"badge,omitempty"`
+	Sound    string `json:"sound,omitempty"`
+	Icon     string `json:"icon,omitempty"`
+	Group    string `json:"group,omitempty"`
+	URL      string `json:"url,omitempty"`
+	Level    string `json:"level,omitempty"`
+	Call     string `json:"call,omitempty"`
+	AutoCopy string `json:"autoCopy,omitempty"`
+	Copy     string `json:"copy,omitempty"`
 }
 
 // barkResponse represents the Bark API response
@@ -91,15 +92,14 @@ func (b *barkProvider) SendMessage(ctx context.Context, message *PushMessage) (*
 
 	// Prepare Bark request payload
 	barkReq := barkRequest{
-		Body:      message.Body,
-		DeviceKey: message.DeviceID,
-		Title:     message.Title,
-		Subtitle:  message.Subtitle,
-		Badge:     message.Badge,
-		Sound:     message.Sound,
-		Icon:      message.Icon,
-		Group:     message.Group,
-		URL:       message.URL,
+		Body:     message.Body,
+		Title:    message.Title,
+		Subtitle: message.Subtitle,
+		Badge:    message.Badge,
+		Sound:    message.Sound,
+		Icon:     message.Icon,
+		Group:    message.Group,
+		URL:      message.URL,
 	}
 
 	// Convert level to string
@@ -116,16 +116,29 @@ func (b *barkProvider) SendMessage(ctx context.Context, message *PushMessage) (*
 		barkReq.Copy = message.Copy
 	}
 
-	// Send request to Bark API
+	// Build the API endpoint
+	endpoint := fmt.Sprintf("%s/%s", b.baseURL, message.DeviceID)
+	
+	// Log the request for debugging
+	logger.Debug("Sending Bark notification",
+		zap.String("endpoint", endpoint),
+		zap.String("device_id", message.DeviceID),
+		zap.String("title", message.Title),
+		zap.String("body", message.Body))
+
+	// Send request to Bark API using correct endpoint format: /{deviceKey}
 	var barkResp barkResponse
 	resp, err := b.client.R().
 		SetContext(ctx).
 		SetResult(&barkResp).
 		SetHeader("Content-Type", "application/json; charset=utf-8").
 		SetBody(barkReq).
-		Post(b.baseURL + "/push")
+		Post(endpoint)
 
 	if err != nil {
+		logger.Error("Failed to send Bark notification", 
+			zap.String("endpoint", endpoint),
+			zap.Error(err))
 		return &PushResponse{
 			Success:  false,
 			Error:    fmt.Sprintf("failed to send bark notification: %v", err),
@@ -133,10 +146,20 @@ func (b *barkProvider) SendMessage(ctx context.Context, message *PushMessage) (*
 		}, nil
 	}
 
+	// Log response details for debugging
+	logger.Debug("Bark API response",
+		zap.Int("status_code", resp.StatusCode()),
+		zap.String("response_body", resp.String()),
+		zap.Int("bark_code", barkResp.Code),
+		zap.String("bark_message", barkResp.Message))
+
 	if resp.StatusCode() != 200 {
+		logger.Error("Bark API returned non-200 status", 
+			zap.Int("status_code", resp.StatusCode()),
+			zap.String("response_body", resp.String()))
 		return &PushResponse{
 			Success:  false,
-			Error:    fmt.Sprintf("bark API returned status code: %d", resp.StatusCode()),
+			Error:    fmt.Sprintf("bark API returned status code: %d, response: %s", resp.StatusCode(), resp.String()),
 			Provider: b.GetProviderName(),
 		}, nil
 	}
